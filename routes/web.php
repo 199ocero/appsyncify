@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SalesforceOAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('auth/salesforce', [SalesforceOAuthController::class, 'redirectToSalesforce'])->name('auth.salesforce');
+    Route::get('auth/salesforce/callback', [SalesforceOAuthController::class, 'handleSalesforceCallback'])->name('auth.salesforce.callback');
 });
