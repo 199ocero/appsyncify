@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('integrations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->text('description');
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->foreignId('first_app_id')->references('id')->on('apps')->onDelete('cascade');
-            $table->foreignId('second_app_id')->references('id')->on('apps')->onDelete('cascade');
+            $table->boolean('is_active')->default(true);
+            $table->foreignId('app_combination_id')->nullable()->references('id')->on('app_combination')->onDelete('set null');
+            $table->foreignId('first_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
+            $table->foreignId('second_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
             $table->timestamps();
         });
     }

@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tokens', function (Blueprint $table) {
+        Schema::create('app_combination', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('app_id')->references('id')->on('apps')->onDelete('cascade');
-            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('token')->unique();
+            $table->foreignId('first_app_id')->references('id')->on('apps')->onDelete('cascade');
+            $table->foreignId('second_app_id')->references('id')->on('apps')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tokens');
+        Schema::dropIfExists('app_combination');
     }
 };

@@ -12,24 +12,24 @@ class Integration extends Model
     protected $fillable = [
         'name',
         'description',
-        'status',
-        'first_app_id',
-        'second_app_id',
-        'user_id',
+        'is_active',
+        'app_combination_id',
+        'first_app_token_id',
+        'second_app_token_id'
     ];
 
-    public function firstApp()
+    public function appCombination()
     {
-        return $this->belongsTo(App::class, 'first_app_id');
+        return $this->belongsTo(AppCombination::class);
     }
 
-    public function secondApp()
+    public function firstAppToken()
     {
-        return $this->belongsTo(App::class, 'second_app_id');
+        return $this->belongsTo(Token::class, 'first_app_token_id');
     }
 
-    public function user()
+    public function secondAppToken()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Token::class, 'second_app_token_id');
     }
 }

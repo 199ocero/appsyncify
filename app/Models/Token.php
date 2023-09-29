@@ -11,11 +11,17 @@ class Token extends Model
 
     protected $fillable = [
         'app_id',
+        'user_id',
         'token'
     ];
 
     public function app()
     {
         return $this->belongsTo(App::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
