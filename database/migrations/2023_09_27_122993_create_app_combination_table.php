@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('first_app_id')->nullable()->references('id')->on('apps')->onDelete('set null');
             $table->foreignId('second_app_id')->nullable()->references('id')->on('apps')->onDelete('set null');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

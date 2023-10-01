@@ -14,6 +14,7 @@ class AppCombination extends Model
     protected $fillable = [
         'first_app_id',
         'second_app_id',
+        'is_active'
     ];
 
     public function firstApp()
