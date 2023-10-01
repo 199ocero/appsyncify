@@ -6,6 +6,7 @@ use Closure;
 use App\Models\App;
 use Filament\Forms;
 use Filament\Tables;
+use App\Enums\Constant;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -73,7 +74,7 @@ class AppCombinationResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                     ->label('Make this app combination active?')
                     ->required()
-                    ->default(true),
+                    ->default(Constant::ACTIVE),
             ]);
     }
 

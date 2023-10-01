@@ -2,17 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AppResource\Pages;
-use App\Filament\Resources\AppResource\RelationManagers;
 use App\Models\App;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Enums\Constant;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\AppResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\AppResource\RelationManagers;
 
 class AppResource extends Resource
 {
@@ -40,7 +41,7 @@ class AppResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                     ->label('Make this app active?')
                     ->required()
-                    ->default(true),
+                    ->default(Constant::ACTIVE),
             ])
             ->columns('full');
     }

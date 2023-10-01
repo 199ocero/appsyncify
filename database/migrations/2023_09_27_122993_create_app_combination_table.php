@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Enums\Constant;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('first_app_id')->nullable()->references('id')->on('apps')->onDelete('set null');
             $table->foreignId('second_app_id')->nullable()->references('id')->on('apps')->onDelete('set null');
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(Constant::ACTIVE);
             $table->timestamps();
         });
     }
