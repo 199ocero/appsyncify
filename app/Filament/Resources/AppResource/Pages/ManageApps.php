@@ -17,7 +17,7 @@ class ManageApps extends ManageRecords
                 ->label('New App')
                 ->icon('heroicon-o-plus')
                 ->modalHeading('Create New App')
-                ->modalDescription('Provide the details of the new app.')
+                ->modalDescription('Provide the details of the app.')
                 ->modalIcon('heroicon-o-bolt'),
         ];
     }
