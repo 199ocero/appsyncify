@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('app_combination', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('first_app_id')->references('id')->on('apps')->onDelete('cascade');
-            $table->foreignId('second_app_id')->references('id')->on('apps')->onDelete('cascade');
+            $table->foreignId('first_app_id')->nullable()->references('id')->on('apps')->onDelete('set null');
+            $table->foreignId('second_app_id')->nullable()->references('id')->on('apps')->onDelete('set null');
             $table->timestamps();
         });
     }
