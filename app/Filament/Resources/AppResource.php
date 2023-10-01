@@ -31,6 +31,7 @@ class AppResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->unique(ignoreRecord: true)
                     ->required()
                     ->string(),
                 Forms\Components\Textarea::make('description')
