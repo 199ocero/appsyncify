@@ -108,6 +108,10 @@ class AppCombinationResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make()
+                        ->modalDescription('View the details of the app combination.')
+                        ->modalIcon('heroicon-o-eye')
+                        ->modalIconColor('primary'),
                     Tables\Actions\EditAction::make()
                         ->icon('heroicon-o-pencil-square')
                         ->modalHeading('Edit App Combination')
