@@ -14,7 +14,12 @@ class AppCombination extends Model
     protected $fillable = [
         'first_app_id',
         'second_app_id',
-        'is_active'
+        'is_active',
+        'features'
+    ];
+
+    protected $casts = [
+        'features' => 'array'
     ];
 
     public function firstApp()

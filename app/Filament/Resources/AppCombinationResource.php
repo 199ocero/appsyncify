@@ -75,6 +75,14 @@ class AppCombinationResource extends Resource
                     ->label('Make this app combination active?')
                     ->required()
                     ->default(Constant::ACTIVE),
+                Forms\Components\Repeater::make('features')
+                    ->schema([
+                        Forms\Components\TextInput::make('feature')
+                            ->label('App Combination Feature')
+                            ->required()
+                    ])
+                    ->columnSpanFull()
+                    ->required()
             ]);
     }
 
