@@ -32,10 +32,18 @@ class AppResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->placeholder('e.g Salesforce')
+                    ->unique(ignoreRecord: true)
+                    ->required()
+                    ->string(),
+                Forms\Components\TextInput::make('app_code')
+                    ->label('App Code')
+                    ->placeholder('e.g salesforce')
                     ->unique(ignoreRecord: true)
                     ->required()
                     ->string(),
                 Forms\Components\Textarea::make('description')
+                    ->placeholder('e.g This is the description of the app')
                     ->required()
                     ->string(),
                 Forms\Components\Toggle::make('is_active')
@@ -51,6 +59,10 @@ class AppResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('app_code')
+                    ->label('App Code')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
