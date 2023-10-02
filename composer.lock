@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3bce136623613c1f4cc66ef4b6f1f6d6",
+    "content-hash": "be4ac5c0cb5232f1a7a9414e5420d489",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -310,6 +310,61 @@
                 }
             ],
             "time": "2023-03-12T12:17:29+00:00"
+        },
+        {
+            "name": "dasundev/filament-access-secret",
+            "version": "v2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dasundev/filament-access-secret.git",
+                "reference": "9e52df0e97de9c8c17bdc3e7cc54c18198386a4e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dasundev/filament-access-secret/zipball/9e52df0e97de9c8c17bdc3e7cc54c18198386a4e",
+                "reference": "9e52df0e97de9c8c17bdc3e7cc54c18198386a4e",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^2.0|^3.0",
+                "php": "^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Dasundev\\FilamentAccessSecret\\FilamentAccessSecretServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dasundev\\FilamentAccessSecret\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dasun Tharanga",
+                    "email": "hello@dasun.dev"
+                }
+            ],
+            "description": "This package provides a middleware for securing access to Filament by requiring a secret key to be provided in the URL.",
+            "keywords": [
+                "dasundev",
+                "filament",
+                "laravel",
+                "login",
+                "secret"
+            ],
+            "support": {
+                "issues": "https://github.com/dasundev/filament-access-secret/issues",
+                "source": "https://github.com/dasundev/filament-access-secret/tree/v2.1.1"
+            },
+            "time": "2023-08-29T16:15:56+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
