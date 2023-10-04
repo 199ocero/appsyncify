@@ -99,7 +99,7 @@ class IntegrationResource extends Resource
     {
         return [
             'index' => Pages\ManageIntegrations::route('/'),
-            'setup' => Pages\SetupIntegration::route('/setup/{id}'),
+            'setup' => Pages\SetupIntegration::route('/setup/{integration}'),
         ];
     }
 }

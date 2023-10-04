@@ -2,16 +2,16 @@
 
 namespace App\Filament\Client\Resources\IntegrationResource\Pages;
 
+use App\Enums\Constant;
 use Filament\Forms;
 use Filament\Forms\Form;
 use App\Models\Integration;
 use Filament\Resources\Pages\Page;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Notifications\Notification;
 use Filament\Forms\Components\Actions\Action;
-use Illuminate\Validation\ValidationException;
 use Filament\Forms\Concerns\InteractsWithForms;
 use App\Filament\Client\Resources\IntegrationResource;
+use App\Forms\Context\BaseWizardStep;
 
 class SetupIntegration extends Page implements HasForms
 {
@@ -23,18 +23,34 @@ class SetupIntegration extends Page implements HasForms
 
     public Integration $integration;
 
-    public ?array $data = [];
+    protected $baseWizardStep;
 
-    public function mount($id): void
+    protected $firstAppWizardStep;
+
+    protected $secondAppWizardStep;
+
+    public function mount(Integration $integration)
     {
-        $integration = Integration::find($id);
-
         if ($integration) {
-            $this->integration = $integration;
-            $this->form->fill();
+            $this->integration = $integration->with('appCombination.firstApp', 'appCombination.secondApp')->first();
         } else {
             abort(404);
         }
+    }
+
+    public function boot()
+    {
+        $this->baseWizardStep = app(BaseWizardStep::class);
+
+        $this->firstAppWizardStep = $this->baseWizardStep->wizardStep(
+            app($this->wizardStepValidate()['firstAppStep']),
+            $this->integration->appCombination->firstApp
+        );
+
+        $this->secondAppWizardStep = $this->baseWizardStep->wizardStep(
+            app($this->wizardStepValidate()['secondAppStep']),
+            $this->integration->appCombination->secondApp
+        );
     }
 
     public function form(Form $form): Form
@@ -42,40 +58,8 @@ class SetupIntegration extends Page implements HasForms
         return $form
             ->schema([
                 Forms\Components\Wizard::make([
-                    Forms\Components\Wizard\Step::make('first_app')
-                        ->label('Salesforce')
-                        ->afterValidation(function (): void {
-                            if (!$this->integration->first_app_token_id) {
-                                Notification::make()
-                                    ->title('Please connect to Salesforce')
-                                    ->danger()
-                                    ->color('danger')
-                                    ->icon('heroicon-o-x-circle')
-                                    ->send();
-
-                                throw ValidationException::withMessages([
-                                    'first_app_token_id' => 'Please connect to Salesforce',
-                                ]);
-                            }
-                        })
-                        ->schema([
-                            Forms\Components\Actions::make([
-                                Forms\Components\Actions\Action::make('salesforce')
-                                    ->label('Connect to Salesforce')
-                                    ->url(route('auth.salesforce'))
-                                    ->icon('heroicon-o-bolt')
-                            ])
-                        ]),
-                    Forms\Components\Wizard\Step::make('second_app')
-                        ->label('Mailchimp')
-                        ->schema([
-                            Forms\Components\Actions::make([
-                                Forms\Components\Actions\Action::make('mailchimp')
-                                    ->label('Connect to Mailchimp')
-                                    ->url(route('auth.salesforce'))
-                                    ->icon('heroicon-o-bolt')
-                            ])
-                        ]),
+                    $this->firstAppWizardStep,
+                    $this->secondAppWizardStep,
                     Forms\Components\Wizard\Step::make('field_mapping')
                         ->label('Field Mapping')
                         ->schema([]),
@@ -88,5 +72,25 @@ class SetupIntegration extends Page implements HasForms
                     )
             ])
             ->statePath('data');
+    }
+
+    private function wizardStepValidate(): array
+    {
+        $classFirstApp = match ($this->integration->appCombination->firstApp->name) {
+            Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
+            Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
+            // more here
+        };
+
+        $classSecondApp = match ($this->integration->appCombination->secondApp->name) {
+            Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
+            Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
+            // more here
+        };
+
+        return [
+            'firstAppStep' => $classFirstApp,
+            'secondAppStep' => $classSecondApp
+        ];
     }
 }
