@@ -42,15 +42,8 @@ class SetupIntegration extends Page implements HasForms
     {
         $this->baseWizardStep = app(BaseWizardStep::class);
 
-        $this->firstAppWizardStep = $this->baseWizardStep->wizardStep(
-            app($this->wizardStepValidate()['firstAppStep']),
-            $this->integration->appCombination->firstApp
-        );
-
-        $this->secondAppWizardStep = $this->baseWizardStep->wizardStep(
-            app($this->wizardStepValidate()['secondAppStep']),
-            $this->integration->appCombination->secondApp
-        );
+        $this->firstAppWizardStep = $this->createWizardStep($this->integration->appCombination->firstApp);
+        $this->secondAppWizardStep = $this->createWizardStep($this->integration->appCombination->secondApp);
     }
 
     public function form(Form $form): Form
@@ -74,23 +67,20 @@ class SetupIntegration extends Page implements HasForms
             ->statePath('data');
     }
 
-    private function wizardStepValidate(): array
+    private function createWizardStep($app)
     {
-        $classFirstApp = match ($this->integration->appCombination->firstApp->name) {
+        $class = $this->getClassForApp($app->name);
+        return $this->baseWizardStep->wizardStep(app($class), $app);
+    }
+
+    private function getClassForApp($appName)
+    {
+        $classMap = [
             Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
             Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
             // more here
-        };
-
-        $classSecondApp = match ($this->integration->appCombination->secondApp->name) {
-            Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
-            Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
-            // more here
-        };
-
-        return [
-            'firstAppStep' => $classFirstApp,
-            'secondAppStep' => $classSecondApp
         ];
+
+        return $classMap[$appName] ?? null;
     }
 }
