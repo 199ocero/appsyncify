@@ -25,7 +25,7 @@ class MailchimpWizardStep implements HasWizardStep
                         ->send();
 
                     throw ValidationException::withMessages([
-                        'first_app_token_id' => 'Please connect to ' . $model->name,
+                        'app' => 'Please connect to ' . $model->name,
                     ]);
                 }
             })
