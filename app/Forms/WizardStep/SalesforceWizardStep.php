@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class SalesforceWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $model)
+    public function wizardStep(Model $model): Component
     {
         return Forms\Components\Wizard\Step::make($model->app_code)
             ->label($model->name)
