@@ -11,6 +11,12 @@ class Constant
     const INACTIVE = 0;
 
     /**
+     * Types of apps
+     */
+    const FIRST_APP = 'first';
+    const SECOND_APP = 'second';
+
+    /**
      * App names
      */
     const SALESFORCE = 'Salesforce';

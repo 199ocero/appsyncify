@@ -42,8 +42,18 @@ class SetupIntegration extends Page implements HasForms
     {
         $this->baseWizardStep = app(BaseWizardStep::class);
 
-        $this->firstAppWizardStep = $this->createWizardStep($this->integration->appCombination->firstApp);
-        $this->secondAppWizardStep = $this->createWizardStep($this->integration->appCombination->secondApp);
+        $this->firstAppWizardStep = $this->createWizardStep(
+            $this->integration->appCombination->firstApp,
+            $this->integration->first_app_token_id,
+            $this->integration->id,
+            Constant::FIRST_APP
+        );
+        $this->secondAppWizardStep = $this->createWizardStep(
+            $this->integration->appCombination->secondApp,
+            $this->integration->second_app_token_id,
+            $this->integration->id,
+            Constant::SECOND_APP
+        );
     }
 
     public function form(Form $form): Form
@@ -67,10 +77,10 @@ class SetupIntegration extends Page implements HasForms
             ->statePath('data');
     }
 
-    private function createWizardStep($app)
+    private function createWizardStep($app, $token_id = null, $integration_id, $type)
     {
         $class = $this->getClassForApp($app->name);
-        return $this->baseWizardStep->wizardStep(app($class), $app);
+        return $this->baseWizardStep->wizardStep(app($class), $app, $token_id, $integration_id, $type);
     }
 
     private function getClassForApp($appName)

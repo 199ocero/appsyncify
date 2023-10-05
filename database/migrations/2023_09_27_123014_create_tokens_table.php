@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('app_id')->references('id')->on('apps')->onDelete('cascade');
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('token')->unique();
+            $table->text('token');
             $table->timestamps();
         });
     }
