@@ -29,10 +29,13 @@ class SetupIntegration extends Page implements HasForms
 
     protected $secondAppWizardStep;
 
+    public ?array $data = [];
+
     public function mount(Integration $integration)
     {
         if ($integration) {
             $this->integration = $integration->with('appCombination.firstApp', 'appCombination.secondApp')->first();
+            $this->form->fill();
         } else {
             abort(404);
         }
