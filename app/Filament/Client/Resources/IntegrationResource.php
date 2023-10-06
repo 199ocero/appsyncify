@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Client\Resources\IntegrationResource\Pages;
 use App\Filament\Client\Resources\IntegrationResource\RelationManagers;
+use Illuminate\Support\HtmlString;
 
 class IntegrationResource extends Resource
 {
@@ -38,7 +39,13 @@ class IntegrationResource extends Resource
                         name: 'appCombination',
                         modifyQueryUsing: fn (Builder $query) => $query->with('firstApp', 'secondApp'),
                     )
-                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->firstApp->name} - {$record->secondApp->name}"),
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->firstApp->name} - {$record->secondApp->name}")
+                    ->helperText(function (string $operation) {
+                        if ($operation === 'edit') {
+                            return new HtmlString('<span class="font-bold" style="color: #FB7185;">Warning:</span> If you change the integration, all of your settings and data will be lost.');
+                        }
+                        return null;
+                    }),
                 Forms\Components\Textarea::make('description')
                     ->placeholder('e.g This is the description of integration')
                     ->required()
