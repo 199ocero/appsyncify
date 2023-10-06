@@ -2,8 +2,9 @@
 
 namespace App\Forms\WizardStep;
 
-use App\Forms\Contracts\HasWizardStep;
 use Filament\Forms;
+use Illuminate\Support\HtmlString;
+use App\Forms\Contracts\HasWizardStep;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
@@ -15,7 +16,7 @@ class SalesforceWizardStep implements HasWizardStep
     {
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
-            ->afterValidation(function () use ($app, $token_id): void {
+            ->beforeValidation(function () use ($app, $token_id): void {
                 if (!$token_id) {
                     Notification::make()
                         ->title('Please connect to ' . $app->name)
@@ -59,7 +60,13 @@ class SalesforceWizardStep implements HasWizardStep
                             }
                             return false;
                         })
-                ])
+                ]),
+                Forms\Components\TextInput::make('domain')
+                    ->required()
+                    ->placeholder('e.g MyDomainName')
+                    ->prefix('https://')
+                    ->suffix('my.salesforce.com')
+                    ->helperText(new HtmlString('This will be use to connect to your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.'))
             ]);
     }
 }
