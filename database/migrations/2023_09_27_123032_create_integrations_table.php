@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignId('app_combination_id')->nullable()->references('id')->on('app_combination')->onDelete('set null');
             $table->foreignId('first_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
             $table->foreignId('second_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
+            $table->json('first_app_settings')->nullable();
+            $table->json('second_app_settings')->nullable();
             $table->timestamps();
         });
     }
