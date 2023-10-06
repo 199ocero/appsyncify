@@ -15,7 +15,14 @@ class Integration extends Model
         'is_active',
         'app_combination_id',
         'first_app_token_id',
-        'second_app_token_id'
+        'second_app_token_id',
+        'first_app_settings',
+        'second_app_settings',
+    ];
+
+    protected $cast = [
+        'first_app_settings' => 'array',
+        'second_app_settings' => 'array'
     ];
 
     public function appCombination()
