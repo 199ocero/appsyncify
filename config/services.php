@@ -37,4 +37,10 @@ return [
         'redirect' => env('SALESFORCE_REDIRECT_URI')
     ],
 
+    'mailchimp' => [
+        'client_id' => env('MAILCHIMP_CLIENT_ID'),
+        'client_secret' => env('MAILCHIMP_CLIENT_SECRET'),
+        'redirect' => env('MAILCHIMP_REDIRECT_URI')
+    ],
+
 ];

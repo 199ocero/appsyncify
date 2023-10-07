@@ -33,7 +33,7 @@ class MailchimpWizardStep implements HasWizardStep
                 Forms\Components\Actions::make([
                     Forms\Components\Actions\Action::make($app->app_code)
                         ->label('Connect to ' . $app->name)
-                        // ->url(route('auth.' . $model->app_code))
+                        ->url(route('auth.' . $app->app_code))
                         ->icon('heroicon-o-bolt')
                 ])
             ]);

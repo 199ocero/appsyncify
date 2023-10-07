@@ -21,6 +21,7 @@ class EventServiceProvider extends ServiceProvider
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // ... other providers
             \SocialiteProviders\SalesForce\SalesForceExtendSocialite::class . '@handle',
+            \SocialiteProviders\MailChimp\MailChimpExtendSocialite::class . '@handle',
         ],
     ];
 
