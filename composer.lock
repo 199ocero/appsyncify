@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be4ac5c0cb5232f1a7a9414e5420d489",
+    "content-hash": "e649e201c7a3cd73afa14247e70206de",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -4831,6 +4831,47 @@
                 }
             ],
             "time": "2023-02-14T16:54:54+00:00"
+        },
+        {
+            "name": "socialiteproviders/mailchimp",
+            "version": "4.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialiteProviders/MailChimp.git",
+                "reference": "b9b01794d423a5a90d43152c7bd872f57c30b378"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialiteProviders/MailChimp/zipball/b9b01794d423a5a90d43152c7bd872f57c30b378",
+                "reference": "b9b01794d423a5a90d43152c7bd872f57c30b378",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^7.2 || ^8.0",
+                "socialiteproviders/manager": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SocialiteProviders\\MailChimp\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brian Faust",
+                    "email": "hello@brianfaust.de"
+                }
+            ],
+            "description": "MailChimp OAuth2 Provider for Laravel Socialite",
+            "support": {
+                "source": "https://github.com/SocialiteProviders/MailChimp/tree/4.1.0"
+            },
+            "time": "2020-12-01T23:10:59+00:00"
         },
         {
             "name": "socialiteproviders/manager",
