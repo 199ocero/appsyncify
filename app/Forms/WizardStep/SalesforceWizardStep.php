@@ -8,16 +8,14 @@ use Illuminate\Support\HtmlString;
 use App\Forms\Contracts\HasWizardStep;
 use App\Models\Integration;
 use App\Models\Token;
-use App\Settings\SalesforceSettings;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
-use Filament\Support\Enums\IconPosition;
 use Illuminate\Validation\ValidationException;
 
 class SalesforceWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $token_id, int $integration_id, array | null $settings, string $type): Component
+    public function wizardStep(Model $app, int | null $token_id, int $integration_id, array | null $settings, int $step, string $type): Component
     {
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
@@ -32,6 +30,13 @@ class SalesforceWizardStep implements HasWizardStep
 
                     throw ValidationException::withMessages([
                         'app' => 'Please connect to ' . $app->name,
+                    ]);
+                }
+            })
+            ->afterValidation(function () use ($type, $step, $integration_id): void {
+                if ($type == Constant::FIRST_APP && $step == 1 || $type == Constant::SECOND_APP && $step == 2) {
+                    Integration::query()->find($integration_id)->update([
+                        'step' => (int)$step + 1
                     ]);
                 }
             })

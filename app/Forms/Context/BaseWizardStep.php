@@ -13,8 +13,9 @@ class BaseWizardStep
         int | null $token_id,
         int $integration_id,
         array | null $settings,
+        int $step,
         string $type
     ) {
-        return $hasWizardStep->wizardStep($model, $token_id, $integration_id, $settings, $type);
+        return $hasWizardStep->wizardStep($model, $token_id, $integration_id, $settings, $step, $type);
     }
 }

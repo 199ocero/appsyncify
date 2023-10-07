@@ -50,6 +50,7 @@ class SetupIntegration extends Page implements HasForms
             $this->integration->first_app_token_id,
             $this->integration->id,
             json_decode($this->integration->first_app_settings, true),
+            $this->integration->step,
             Constant::FIRST_APP
         );
         $this->secondAppWizardStep = $this->createWizardStep(
@@ -57,6 +58,7 @@ class SetupIntegration extends Page implements HasForms
             $this->integration->second_app_token_id,
             $this->integration->id,
             json_decode($this->integration->second_app_settings, true),
+            $this->integration->step,
             Constant::SECOND_APP
         );
     }
@@ -78,15 +80,15 @@ class SetupIntegration extends Page implements HasForms
                     ->previousAction(
                         fn (Action $action) => $action->label('Go Back')->icon('heroicon-o-chevron-left'),
                     )
-                    ->persistStepInQueryString('wizard-step')
+                    ->startOnStep($this->integration->step)
             ])
             ->statePath('data');
     }
 
-    private function createWizardStep($app, $token_id = null, $integration_id, $settings, $type)
+    private function createWizardStep($app, $token_id = null, $integration_id, $settings, $step, $type)
     {
         $class = $this->getClassForApp($app->name);
-        return $this->baseWizardStep->wizardStep(app($class), $app, $token_id, $integration_id, $settings, $type);
+        return $this->baseWizardStep->wizardStep(app($class), $app, $token_id, $integration_id, $settings, $step, $type);
     }
 
     private function getClassForApp($appName)

@@ -12,6 +12,7 @@ interface HasWizardStep
         int | null $token_id,
         int $integration_id,
         array | null $settings,
+        int $step,
         string $type
     ): Component;
 }
