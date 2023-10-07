@@ -7,5 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 interface HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $token_id, int $integration_id, string $type): Component;
+    public function wizardStep(
+        Model $app,
+        int | null $token_id,
+        int $integration_id,
+        array | null $settings,
+        string $type
+    ): Component;
 }

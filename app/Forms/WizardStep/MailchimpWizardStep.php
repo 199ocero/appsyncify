@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class MailchimpWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $token_id, int $integration_id, string $type): Component
+    public function wizardStep(Model $app, int | null $token_id, int $integration_id, array | null $settings, string $type): Component
     {
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)

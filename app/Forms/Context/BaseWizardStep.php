@@ -7,8 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseWizardStep
 {
-    public function wizardStep(HasWizardStep $hasWizardStep, Model $model, int | null $token_id, int $integration_id, string $type)
-    {
-        return $hasWizardStep->wizardStep($model, $token_id, $integration_id, $type);
+    public function wizardStep(
+        HasWizardStep $hasWizardStep,
+        Model $model,
+        int | null $token_id,
+        int $integration_id,
+        array | null $settings,
+        string $type
+    ) {
+        return $hasWizardStep->wizardStep($model, $token_id, $integration_id, $settings, $type);
     }
 }
