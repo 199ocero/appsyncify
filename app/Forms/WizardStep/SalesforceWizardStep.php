@@ -2,17 +2,22 @@
 
 namespace App\Forms\WizardStep;
 
+use App\Enums\Constant;
 use Filament\Forms;
 use Illuminate\Support\HtmlString;
 use App\Forms\Contracts\HasWizardStep;
+use App\Models\Integration;
+use App\Models\Token;
+use App\Settings\SalesforceSettings;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\IconPosition;
 use Illuminate\Validation\ValidationException;
 
 class SalesforceWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $token_id, int $integration_id, string $type): Component
+    public function wizardStep(Model $app, int | null $token_id, int $integration_id, array | null $settings, string $type): Component
     {
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
@@ -33,12 +38,7 @@ class SalesforceWizardStep implements HasWizardStep
             ->schema([
                 Forms\Components\Actions::make([
                     Forms\Components\Actions\Action::make($app->app_code)
-                        ->label(function () use ($token_id, $app) {
-                            if ($token_id) {
-                                return 'Connected to ' . $app->name;
-                            }
-                            return 'Connect to ' . $app->name;
-                        })
+                        ->label(fn () => $token_id ? 'Connected to ' . $app->name : 'Connect to ' . $app->name)
                         ->url(function () use ($app, $integration_id, $type) {
                             session([
                                 'salesforce_app_id' => $app->id,
@@ -47,26 +47,33 @@ class SalesforceWizardStep implements HasWizardStep
                             ]);
                             return route('auth.' . $app->app_code);
                         })
-                        ->icon('heroicon-o-bolt')
-                        ->color(function () use ($token_id) {
-                            if ($token_id) {
-                                return 'primary';
-                            }
-                            return 'gray';
+                        ->icon(fn () => $token_id ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
+                        ->color(fn () => $token_id ? 'gray' : 'primary')
+                        ->disabled(fn () => $token_id ? true : false),
+                    Forms\Components\Actions\Action::make('disconnect')
+                        ->label('Disconnect')
+                        ->icon('heroicon-o-bolt-slash')
+                        ->color('primary')
+                        ->requiresConfirmation()
+                        ->modalHeading('Disconnect from ' . $app->name)
+                        ->modalSubmitActionLabel('Yes, disconnect')
+                        ->modalIcon('heroicon-o-bolt-slash')
+                        ->action(function () use ($integration_id, $token_id, $type) {
+                            $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
+                            Integration::query()->find($integration_id)->update([
+                                "{$updateDataKey}_settings" => null,
+                            ]);
+                            Token::query()->find($token_id)->delete();
                         })
-                        ->disabled(function () use ($token_id) {
-                            if ($token_id) {
-                                return true;
-                            }
-                            return false;
-                        })
+                        ->hidden($token_id ? false : true)
                 ]),
                 Forms\Components\TextInput::make('domain')
-                    ->required()
-                    ->placeholder('e.g MyDomainName')
-                    ->prefix('https://')
-                    ->suffix('my.salesforce.com')
-                    ->helperText(new HtmlString('This will be use to connect to your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.'))
+                    ->label('Salesforce URL Resource')
+                    ->prefixIcon('heroicon-o-globe-asia-australia')
+                    ->disabled($settings && isset($settings['domain']) ? true : false)
+                    ->hidden($settings && isset($settings['domain']) ? false : true)
+                    ->default($settings && isset($settings['domain']) ? $settings['domain'] : null)
+                    ->helperText(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.'))
             ]);
     }
 }
