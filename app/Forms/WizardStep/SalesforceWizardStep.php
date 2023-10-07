@@ -64,7 +64,7 @@ class SalesforceWizardStep implements HasWizardStep
                         ->icon(fn () => $token_id ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
                         ->color(fn () => $token_id ? 'gray' : 'primary')
                         ->disabled(fn () => $token_id ? true : false),
-                    Forms\Components\Actions\Action::make('disconnect')
+                    Forms\Components\Actions\Action::make('disconnect' . $app->app_code)
                         ->label('Disconnect')
                         ->icon('heroicon-o-bolt-slash')
                         ->color('primary')
