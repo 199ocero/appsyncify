@@ -2,12 +2,13 @@
 
 namespace App\Forms\WizardStep;
 
-use App\Enums\Constant;
 use Filament\Forms;
-use Illuminate\Support\HtmlString;
-use App\Forms\Contracts\HasWizardStep;
-use App\Models\Integration;
 use App\Models\Token;
+use App\Enums\Constant;
+use App\Models\Integration;
+use Illuminate\Support\HtmlString;
+use App\Settings\SalesforceSettings;
+use App\Forms\Contracts\HasWizardStep;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
@@ -33,12 +34,20 @@ class SalesforceWizardStep implements HasWizardStep
                     ]);
                 }
             })
-            ->afterValidation(function () use ($type, $step, $integration_id): void {
+            ->afterValidation(function ($state) use ($type, $step, $integration_id): void {
                 if ($type == Constant::FIRST_APP && $step == 1 || $type == Constant::SECOND_APP && $step == 2) {
                     Integration::query()->find($integration_id)->update([
                         'step' => (int)$step + 1
                     ]);
                 }
+                $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
+
+                Integration::query()->find(session('integration_id'))->update([
+                    "{$updateDataKey}_settings" => SalesforceSettings::make()
+                        ->domain($state['domain'])
+                        ->syncDataType($state['sync_data_type'])
+                        ->getSettings(),
+                ]);
             })
             ->schema([
                 Forms\Components\Actions::make([
@@ -78,7 +87,31 @@ class SalesforceWizardStep implements HasWizardStep
                     ->disabled($settings && isset($settings['domain']) ? true : false)
                     ->hidden($settings && isset($settings['domain']) ? false : true)
                     ->default($settings && isset($settings['domain']) ? $settings['domain'] : null)
-                    ->helperText(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.'))
+                    ->helperText(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.')),
+                Forms\Components\Section::make('Sync Data')
+                    ->description('Choose the type of data you want to sync.')
+                    ->schema([
+                        Forms\Components\Radio::make('sync_data_type')
+                            ->label('')
+                            ->required()
+                            ->validationAttribute('sync data type')
+                            ->options([
+                                'contact' => 'Contact',
+                                'lead' => 'Lead',
+                                'account' => 'Account'
+                            ])
+                            ->descriptions([
+                                'contact' => 'Sync contacts from ' . $app->name . '.',
+                                'lead' => 'Sync leads from ' . $app->name . '.',
+                                'account' => 'Sync accounts from ' . $app->name . '.'
+                            ])
+                            ->disableOptionWhen(fn (string $value): bool => $value === 'lead' || $value === 'account')
+                            ->default($settings && isset($settings['sync_data_type']) ? $settings['sync_data_type'] : null)
+                            ->inline()
+                            ->columns('full')
+                    ])
+                    ->hidden($token_id ? false : true),
+
             ]);
     }
 }
