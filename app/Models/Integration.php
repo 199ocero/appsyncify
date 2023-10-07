@@ -18,6 +18,7 @@ class Integration extends Model
         'second_app_token_id',
         'first_app_settings',
         'second_app_settings',
+        'step'
     ];
 
     protected $cast = [
