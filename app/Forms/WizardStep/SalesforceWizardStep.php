@@ -42,7 +42,7 @@ class SalesforceWizardStep implements HasWizardStep
                 }
                 $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
-                Integration::query()->find(session('integration_id'))->update([
+                Integration::query()->find($integration_id)->update([
                     "{$updateDataKey}_settings" => SalesforceSettings::make()
                         ->domain($state['domain'])
                         ->syncDataType($state['sync_data_type'])
