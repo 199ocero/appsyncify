@@ -35,20 +35,28 @@ class MailchimpWizardStep implements HasWizardStep
                     ]);
                 }
             })
-            ->afterValidation(function ($state) use ($type, $step, $integration_id): void {
+            ->afterValidation(function ($state) use ($type, $step, $integration_id, $settings): void {
                 if ($type == Constant::FIRST_APP && $step == 1 || $type == Constant::SECOND_APP && $step == 2) {
                     Integration::query()->find($integration_id)->update([
                         'step' => (int)$step + 1
                     ]);
                 }
-                $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
-                Integration::query()->find($integration_id)->update([
-                    "{$updateDataKey}_settings" => MailchimpSettings::make()
-                        ->region($state['region'])
-                        ->audienceId($state['audience_id'])
-                        ->getSettings()
-                ]);
+                $currentState = [
+                    'region' => $state['region'],
+                    'audience_id' => $state['audience_id']
+                ];
+
+                if (count(array_diff_assoc($currentState, $settings)) > 0) {
+                    $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
+
+                    Integration::query()->find($integration_id)->update([
+                        "{$updateDataKey}_settings" => MailchimpSettings::make()
+                            ->region($state['region'])
+                            ->audienceId($state['audience_id'])
+                            ->getSettings()
+                    ]);
+                }
             })
             ->schema([
                 Forms\Components\Actions::make([
