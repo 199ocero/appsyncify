@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Token;
 use App\Enums\Constant;
 use App\Models\Integration;
+use App\Settings\MailchimpSettings;
 use Illuminate\Http\Request;
 use App\Settings\SalesforceSettings;
 use Illuminate\Support\Facades\Crypt;
@@ -25,7 +26,6 @@ class MailchimpOAuthController extends Controller
     {
         if (session()->has(['mailchimp_app_id', 'mailchimp_integration_id', 'mailchimp_type'])) {
             $user = Socialite::driver('mailchimp')->user();
-
             $token = Token::updateOrCreate(
                 [
                     'user_id' => auth()->user()->id,
@@ -36,11 +36,12 @@ class MailchimpOAuthController extends Controller
                 ]
             );
 
-            if (session('type') == Constant::FIRST_APP || session('type') == Constant::SECOND_APP) {
+            if (session('mailchimp_type') == Constant::FIRST_APP || session('mailchimp_type') == Constant::SECOND_APP) {
                 $updateDataKey = session('mailchimp_type') == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
                 Integration::query()->find(session('mailchimp_integration_id'))->update([
-                    "{$updateDataKey}_token_id" => $token->id
+                    "{$updateDataKey}_token_id" => $token->id,
+                    "{$updateDataKey}_settings" => MailchimpSettings::make()->region($user->user['dc'])->getSettings(),
                 ]);
             }
 
