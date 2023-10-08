@@ -14,7 +14,7 @@ class SalesforceOAuthController extends Controller
 {
     public function redirectToSalesforce()
     {
-        if (session()->has(['salesforce_app_id', 'integration_id', 'type'])) {
+        if (session()->has(['salesforce_app_id', 'salesforce_integration_id', 'salesforce_type'])) {
             return Socialite::driver('salesforce')->redirect();
         }
 
@@ -23,7 +23,7 @@ class SalesforceOAuthController extends Controller
 
     public function handleSalesforceCallback()
     {
-        if (session()->has(['salesforce_app_id', 'integration_id', 'type'])) {
+        if (session()->has(['salesforce_app_id', 'salesforce_integration_id', 'salesforce_type'])) {
             $user = Socialite::driver('salesforce')->user();
 
             $token = Token::updateOrCreate(
@@ -36,21 +36,21 @@ class SalesforceOAuthController extends Controller
                 ]
             );
 
-            if (session('type') == Constant::FIRST_APP || session('type') == Constant::SECOND_APP) {
-                $updateDataKey = session('type') == Constant::FIRST_APP ? 'first_app' : 'second_app';
+            if (session('salesforce_type') == Constant::FIRST_APP || session('salesforce_type') == Constant::SECOND_APP) {
+                $updateDataKey = session('salesforce_type') == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
-                Integration::query()->find(session('integration_id'))->update([
+                Integration::query()->find(session('salesforce_integration_id'))->update([
                     "{$updateDataKey}_token_id" => $token->id,
                     "{$updateDataKey}_settings" => SalesforceSettings::make()->domain($user->accessTokenResponseBody['instance_url'])->getSettings(),
                 ]);
             }
 
-            $integration_id = session('integration_id');
+            $integration_id = session('salesforce_integration_id');
 
             session()->forget([
                 'salesforce_app_id',
-                'integration_id',
-                'type'
+                'salesforce_integration_id',
+                'salesforce_type'
             ]);
 
             return redirect()->route('filament.client.resources.integrations.setup', $integration_id);

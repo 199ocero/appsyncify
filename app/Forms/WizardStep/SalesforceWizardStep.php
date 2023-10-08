@@ -56,8 +56,8 @@ class SalesforceWizardStep implements HasWizardStep
                         ->url(function () use ($app, $integration_id, $type) {
                             session([
                                 'salesforce_app_id' => $app->id,
-                                'integration_id' => $integration_id,
-                                'type' => $type
+                                'salesforce_integration_id' => $integration_id,
+                                'salesforce_type' => $type
                             ]);
                             return route('auth.' . $app->app_code);
                         })

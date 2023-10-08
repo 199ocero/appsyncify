@@ -14,7 +14,7 @@ class MailchimpOAuthController extends Controller
 {
     public function redirectToMailchimp()
     {
-        if (session()->has(['mailchimp_app_id', 'integration_id', 'type'])) {
+        if (session()->has(['mailchimp_app_id', 'mailchimp_integration_id', 'mailchimp_type'])) {
             return Socialite::driver('mailchimp')->redirect();
         }
 
@@ -23,7 +23,7 @@ class MailchimpOAuthController extends Controller
 
     public function handleMailchimpCallback()
     {
-        if (session()->has(['mailchimp_app_id', 'integration_id', 'type'])) {
+        if (session()->has(['mailchimp_app_id', 'mailchimp_integration_id', 'mailchimp_type'])) {
             $user = Socialite::driver('mailchimp')->user();
 
             $token = Token::updateOrCreate(
@@ -37,19 +37,19 @@ class MailchimpOAuthController extends Controller
             );
 
             if (session('type') == Constant::FIRST_APP || session('type') == Constant::SECOND_APP) {
-                $updateDataKey = session('type') == Constant::FIRST_APP ? 'first_app' : 'second_app';
+                $updateDataKey = session('mailchimp_type') == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
-                Integration::query()->find(session('integration_id'))->update([
+                Integration::query()->find(session('mailchimp_integration_id'))->update([
                     "{$updateDataKey}_token_id" => $token->id
                 ]);
             }
 
-            $integration_id = session('integration_id');
+            $integration_id = session('mailchimp_integration_id');
 
             session()->forget([
                 'mailchimp_app_id',
-                'integration_id',
-                'type'
+                'mailchimp_integration_id',
+                'mailchimp_type'
             ]);
 
             return redirect()->route('filament.client.resources.integrations.setup', $integration_id);
