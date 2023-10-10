@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Token;
 use App\Enums\Constant;
 use App\Models\Integration;
+use App\Services\SalesforceApi;
 use Illuminate\Http\Request;
 use App\Settings\SalesforceSettings;
 use Illuminate\Support\Facades\Crypt;
@@ -41,7 +42,10 @@ class SalesforceOAuthController extends Controller
 
                 Integration::query()->find(session('salesforce_integration_id'))->update([
                     "{$updateDataKey}_token_id" => $token->id,
-                    "{$updateDataKey}_settings" => SalesforceSettings::make()->domain($user->accessTokenResponseBody['instance_url'])->getSettings(),
+                    "{$updateDataKey}_settings" => SalesforceSettings::make()
+                        ->domain($user->accessTokenResponseBody['instance_url'])
+                        ->apiVersion(SalesforceApi::make(domain: $user->accessTokenResponseBody['instance_url'], accessToken: $user->token)->getApiVersion())
+                        ->getSettings(),
                 ]);
             }
 

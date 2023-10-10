@@ -6,6 +6,7 @@ class SalesforceSettings
 {
     protected $domain;
     protected $syncDataType;
+    protected $apiVersion;
 
     public static function make(): self
     {
@@ -15,6 +16,12 @@ class SalesforceSettings
     public function domain(string $domain): self
     {
         $this->domain = $domain;
+        return $this;
+    }
+
+    public function apiVersion(string $apiVersion): self
+    {
+        $this->apiVersion = $apiVersion;
         return $this;
     }
 
@@ -28,6 +35,7 @@ class SalesforceSettings
     {
         return [
             'domain' => $this->domain,
+            'api_version' => $this->apiVersion,
             'sync_data_type' => $this->syncDataType
         ];
     }
