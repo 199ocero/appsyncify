@@ -6,14 +6,15 @@ use Filament\Forms;
 use App\Models\Token;
 use App\Enums\Constant;
 use App\Models\Integration;
-use App\Forms\Contracts\HasWizardStep;
+use MailchimpMarketing\ApiClient;
 use App\Settings\MailchimpSettings;
+use Illuminate\Support\Facades\Crypt;
+use App\Forms\Contracts\HasWizardStep;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Crypt;
+use App\Forms\WizardStep\GeneralWizardStep;
 use Illuminate\Validation\ValidationException;
-use MailchimpMarketing\ApiClient;
 
 class MailchimpWizardStep implements HasWizardStep
 {
@@ -81,34 +82,8 @@ class MailchimpWizardStep implements HasWizardStep
                         ->modalHeading('Disconnect from ' . $app->name)
                         ->modalSubmitActionLabel('Yes, disconnect')
                         ->modalIcon('heroicon-o-bolt-slash')
-                        ->action(function () use ($integrationId, $tokenId, $type, $step) {
-                            $integration = Integration::query()->find($integrationId);
-
-                            if ($type == Constant::FIRST_APP && $step >= 1) {
-                                $integration->update([
-                                    'step' => 1,
-                                ]);
-                            }
-
-                            if ($type == Constant::SECOND_APP && !$integration->first_app_token_id) {
-                                $integration->update([
-                                    'step' => 1,
-                                ]);
-                            }
-
-                            if ($type == Constant::SECOND_APP && $integration->first_app_token_id && $step >= 2) {
-                                $integration->update([
-                                    'step' => 2,
-                                ]);
-                            }
-
-                            $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
-
-                            $integration->update([
-                                "{$updateDataKey}_settings" => null,
-                            ]);
-
-                            Token::query()->find($tokenId)->delete();
+                        ->action(function () use ($integrationId, $type, $step, $tokenId) {
+                            return GeneralWizardStep::make($integrationId, $type, $step, $tokenId)->disconnectApp();
                         })
                         ->hidden($tokenId ? false : true)
                 ]),
