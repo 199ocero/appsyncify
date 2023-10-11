@@ -77,7 +77,7 @@ class SetupIntegration extends Page implements HasForms
                                 ->description('These are the fields that have been matched and set up in advance, ensuring that data from one system aligns with its proper destination in another system, simplifying the data transfer process.')
                                 ->schema([
                                     Forms\Components\ViewField::make('default_items')
-                                        ->label('Field Mapping Items')
+                                        ->label('')
                                         ->view('forms.components.field-mapping')
                                         ->viewData([
                                             'field_1' => 'Salesforce Email',
