@@ -17,12 +17,12 @@ use MailchimpMarketing\ApiClient;
 
 class MailchimpWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $token_id, int $integration_id, array | null $settings, int $step, string $type): Component
+    public function wizardStep(Model $app, int | null $tokenId, int $integrationId, array | null $settings, int $step, string $type): Component
     {
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
-            ->beforeValidation(function () use ($app, $token_id): void {
-                if (!$token_id) {
+            ->beforeValidation(function () use ($app, $tokenId): void {
+                if (!$tokenId) {
                     Notification::make()
                         ->title('Please connect to ' . $app->name)
                         ->danger()
@@ -35,9 +35,9 @@ class MailchimpWizardStep implements HasWizardStep
                     ]);
                 }
             })
-            ->afterValidation(function ($state) use ($type, $step, $integration_id, $settings): void {
+            ->afterValidation(function ($state) use ($type, $step, $integrationId, $settings): void {
                 if ($type == Constant::FIRST_APP && $step == 1 || $type == Constant::SECOND_APP && $step == 2) {
-                    Integration::query()->find($integration_id)->update([
+                    Integration::query()->find($integrationId)->update([
                         'step' => (int)$step + 1
                     ]);
                 }
@@ -50,7 +50,7 @@ class MailchimpWizardStep implements HasWizardStep
                 if (count(array_diff_assoc($currentState, $settings)) > 0) {
                     $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
-                    Integration::query()->find($integration_id)->update([
+                    Integration::query()->find($integrationId)->update([
                         "{$updateDataKey}_settings" => MailchimpSettings::make()
                             ->region($state['region'])
                             ->audienceId($state['audience_id'])
@@ -61,18 +61,18 @@ class MailchimpWizardStep implements HasWizardStep
             ->schema([
                 Forms\Components\Actions::make([
                     Forms\Components\Actions\Action::make($app->app_code)
-                        ->label(fn () => $token_id ? 'Connected to ' . $app->name : 'Connect to ' . $app->name)
-                        ->url(function () use ($app, $integration_id, $type) {
+                        ->label(fn () => $tokenId ? 'Connected to ' . $app->name : 'Connect to ' . $app->name)
+                        ->url(function () use ($app, $integrationId, $type) {
                             session([
                                 'mailchimp_app_id' => $app->id,
-                                'mailchimp_integration_id' => $integration_id,
+                                'mailchimp_integration_id' => $integrationId,
                                 'mailchimp_type' => $type
                             ]);
                             return route('auth.' . $app->app_code);
                         })
-                        ->icon(fn () => $token_id ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
-                        ->color(fn () => $token_id ? 'gray' : 'primary')
-                        ->disabled(fn () => $token_id ? true : false),
+                        ->icon(fn () => $tokenId ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
+                        ->color(fn () => $tokenId ? 'gray' : 'primary')
+                        ->disabled(fn () => $tokenId ? true : false),
                     Forms\Components\Actions\Action::make('disconnect_' . $app->app_code)
                         ->label('Disconnect')
                         ->icon('heroicon-o-bolt-slash')
@@ -81,14 +81,36 @@ class MailchimpWizardStep implements HasWizardStep
                         ->modalHeading('Disconnect from ' . $app->name)
                         ->modalSubmitActionLabel('Yes, disconnect')
                         ->modalIcon('heroicon-o-bolt-slash')
-                        ->action(function () use ($integration_id, $token_id, $type) {
+                        ->action(function () use ($integrationId, $tokenId, $type, $step) {
+                            $integration = Integration::query()->find($integrationId);
+
+                            if ($type == Constant::FIRST_APP && $step >= 1) {
+                                $integration->update([
+                                    'step' => 1,
+                                ]);
+                            }
+
+                            if ($type == Constant::SECOND_APP && !$integration->first_app_token_id) {
+                                $integration->update([
+                                    'step' => 1,
+                                ]);
+                            }
+
+                            if ($type == Constant::SECOND_APP && $integration->first_app_token_id && $step >= 2) {
+                                $integration->update([
+                                    'step' => 2,
+                                ]);
+                            }
+
                             $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
-                            Integration::query()->find($integration_id)->update([
+
+                            $integration->update([
                                 "{$updateDataKey}_settings" => null,
                             ]);
-                            Token::query()->find($token_id)->delete();
+
+                            Token::query()->find($tokenId)->delete();
                         })
-                        ->hidden($token_id ? false : true)
+                        ->hidden($tokenId ? false : true)
                 ]),
                 Forms\Components\TextInput::make('region')
                     ->label('Region')
@@ -99,8 +121,8 @@ class MailchimpWizardStep implements HasWizardStep
                 Forms\Components\Select::make('audience_id')
                     ->label('Mailchimp Audience')
                     ->required()
-                    ->options(function () use ($token_id, $settings): array {
-                        $token = Token::query()->find($token_id);
+                    ->options(function () use ($tokenId, $settings): array {
+                        $token = Token::query()->find($tokenId);
                         if ($token) {
                             $mailchimp = new ApiClient();
 
@@ -120,7 +142,7 @@ class MailchimpWizardStep implements HasWizardStep
                         return [];
                     })
                     ->default($settings && isset($settings['audience_id']) ? $settings['audience_id'] : null)
-                    ->hidden($token_id ? false : true),
+                    ->hidden($tokenId ? false : true),
             ]);
     }
 }

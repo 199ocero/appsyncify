@@ -10,12 +10,12 @@ class BaseWizardStep
     public function wizardStep(
         HasWizardStep $hasWizardStep,
         Model $model,
-        int | null $token_id,
-        int $integration_id,
+        int | null $tokenId,
+        int $integrationId,
         array | null $settings,
         int $step,
         string $type
     ) {
-        return $hasWizardStep->wizardStep($model, $token_id, $integration_id, $settings, $step, $type);
+        return $hasWizardStep->wizardStep($model, $tokenId, $integrationId, $settings, $step, $type);
     }
 }

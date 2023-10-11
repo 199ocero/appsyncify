@@ -9,8 +9,8 @@ interface HasWizardStep
 {
     public function wizardStep(
         Model $app,
-        int | null $token_id,
-        int $integration_id,
+        int | null $tokenId,
+        int $integrationId,
         array | null $settings,
         int $step,
         string $type
