@@ -12,16 +12,17 @@ use App\Forms\Contracts\HasWizardStep;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
+use App\Forms\WizardStep\GeneralWizardStep;
 use Illuminate\Validation\ValidationException;
 
 class SalesforceWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $token_id, int $integration_id, array | null $settings, int $step, string $type): Component
+    public function wizardStep(Model $app, int | null $tokenId, int $integrationId, array | null $settings, int $step, string $type): Component
     {
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
-            ->beforeValidation(function () use ($app, $token_id): void {
-                if (!$token_id) {
+            ->beforeValidation(function () use ($app, $tokenId): void {
+                if (!$tokenId) {
                     Notification::make()
                         ->title('Please connect to ' . $app->name)
                         ->danger()
@@ -34,15 +35,16 @@ class SalesforceWizardStep implements HasWizardStep
                     ]);
                 }
             })
-            ->afterValidation(function ($state) use ($type, $step, $integration_id, $settings): void {
+            ->afterValidation(function ($state) use ($type, $step, $integrationId, $settings): void {
                 if ($type == Constant::FIRST_APP && $step == 1 || $type == Constant::SECOND_APP && $step == 2) {
-                    Integration::query()->find($integration_id)->update([
+                    Integration::query()->find($integrationId)->update([
                         'step' => (int)$step + 1
                     ]);
                 }
 
                 $currentState = [
                     'domain' => $state['domain'],
+                    'api_version' => $state['api_version'],
                     'sync_data_type' => $state['sync_data_type']
                 ];
 
@@ -50,9 +52,10 @@ class SalesforceWizardStep implements HasWizardStep
 
                     $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
-                    Integration::query()->find($integration_id)->update([
+                    Integration::query()->find($integrationId)->update([
                         "{$updateDataKey}_settings" => SalesforceSettings::make()
                             ->domain($state['domain'])
+                            ->apiVersion($state['api_version'])
                             ->syncDataType($state['sync_data_type'])
                             ->getSettings(),
                     ]);
@@ -61,18 +64,18 @@ class SalesforceWizardStep implements HasWizardStep
             ->schema([
                 Forms\Components\Actions::make([
                     Forms\Components\Actions\Action::make($app->app_code)
-                        ->label(fn () => $token_id ? 'Connected to ' . $app->name : 'Connect to ' . $app->name)
-                        ->url(function () use ($app, $integration_id, $type) {
+                        ->label(fn () => $tokenId ? 'Connected to ' . $app->name : 'Connect to ' . $app->name)
+                        ->url(function () use ($app, $integrationId, $type) {
                             session([
                                 'salesforce_app_id' => $app->id,
-                                'salesforce_integration_id' => $integration_id,
+                                'salesforce_integration_id' => $integrationId,
                                 'salesforce_type' => $type
                             ]);
                             return route('auth.' . $app->app_code);
                         })
-                        ->icon(fn () => $token_id ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
-                        ->color(fn () => $token_id ? 'gray' : 'primary')
-                        ->disabled(fn () => $token_id ? true : false),
+                        ->icon(fn () => $tokenId ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
+                        ->color(fn () => $tokenId ? 'gray' : 'primary')
+                        ->disabled(fn () => $tokenId ? true : false),
                     Forms\Components\Actions\Action::make('disconnect' . $app->app_code)
                         ->label('Disconnect')
                         ->icon('heroicon-o-bolt-slash')
@@ -81,22 +84,32 @@ class SalesforceWizardStep implements HasWizardStep
                         ->modalHeading('Disconnect from ' . $app->name)
                         ->modalSubmitActionLabel('Yes, disconnect')
                         ->modalIcon('heroicon-o-bolt-slash')
-                        ->action(function () use ($integration_id, $token_id, $type) {
-                            $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
-                            Integration::query()->find($integration_id)->update([
-                                "{$updateDataKey}_settings" => null,
-                            ]);
-                            Token::query()->find($token_id)->delete();
+                        ->action(function () use ($integrationId, $type, $step, $tokenId) {
+                            return GeneralWizardStep::make($integrationId, $type, $step, $tokenId)->disconnectApp();
                         })
-                        ->hidden($token_id ? false : true)
+                        ->hidden($tokenId ? false : true)
                 ]),
-                Forms\Components\TextInput::make('domain')
-                    ->label('Salesforce URL Resource')
-                    ->prefixIcon('heroicon-o-globe-asia-australia')
-                    ->disabled($settings && isset($settings['domain']) ? true : false)
-                    ->hidden($settings && isset($settings['domain']) ? false : true)
-                    ->default($settings && isset($settings['domain']) ? $settings['domain'] : null)
-                    ->helperText(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.')),
+                Forms\Components\Section::make('Salesforce Resource')
+                    ->description(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.'))
+                    ->schema([
+                        Forms\Components\TextInput::make('domain')
+                            ->label('Salesforce Organization Url')
+                            ->prefixIcon('heroicon-o-globe-asia-australia')
+                            ->disabled($settings && isset($settings['domain']) ? true : false)
+                            ->default($settings && isset($settings['domain']) ? $settings['domain'] : null),
+                        Forms\Components\TextInput::make('api_version')
+                            ->label('Salesforce Api Version')
+                            ->prefixIcon('heroicon-o-code-bracket-square')
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('update_api_version')
+                                    ->icon('heroicon-o-arrow-path')
+                                    ->requiresConfirmation()
+                            )
+                            ->disabled($settings && isset($settings['api_version']) ? true : false)
+                            ->default($settings && isset($settings['api_version']) ? $settings['api_version'] : null)
+                    ])
+                    ->hidden($tokenId ? false : true)
+                    ->columns(2),
                 Forms\Components\Section::make('Sync Data')
                     ->description('Choose the type of data you want to sync.')
                     ->schema([
@@ -119,7 +132,7 @@ class SalesforceWizardStep implements HasWizardStep
                             ->inline()
                             ->columns('full')
                     ])
-                    ->hidden($token_id ? false : true),
+                    ->hidden($tokenId ? false : true),
 
             ]);
     }
