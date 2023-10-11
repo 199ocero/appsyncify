@@ -72,6 +72,24 @@ class SetupIntegration extends Page implements HasForms
                     $this->secondAppWizardStep,
                     Forms\Components\Wizard\Step::make('field_mapping')
                         ->label('Field Mapping')
+                        ->schema([
+                            Forms\Components\Section::make('Pre-mapped Fields')
+                                ->description('These are the fields that have been matched and set up in advance, ensuring that data from one system aligns with its proper destination in another system, simplifying the data transfer process.')
+                                ->schema([
+                                    Forms\Components\ViewField::make('default_items')
+                                        ->label('Field Mapping Items')
+                                        ->view('forms.components.field-mapping')
+                                        ->viewData([
+                                            'field_1' => 'Salesforce Email',
+                                            'field_2' => 'Mailchimp Email',
+                                        ])
+                                ])
+                                ->collapsible(),
+                            Forms\Components\Toggle::make('field_mapping_enabled')
+                                ->label('Enable Field Mapping')
+                        ]),
+                    Forms\Components\Wizard\Step::make('schedule')
+                        ->label('Schedule')
                         ->schema([]),
                 ])
                     ->nextAction(
