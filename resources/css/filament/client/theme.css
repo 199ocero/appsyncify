@@ -1,3 +1,15 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
 @config './tailwind.config.js';
+
+.field-mapping-item {
+    @apply flex items-center justify-between gap-5 space-y-2;
+}
+
+.field-mapping-app {
+    @apply flex items-center w-full space-x-3;
+}
+
+.field-mapping-app-logo{
+    @apply w-10 h-10;
+}
