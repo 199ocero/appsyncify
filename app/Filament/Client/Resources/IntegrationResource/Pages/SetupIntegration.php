@@ -76,12 +76,6 @@ class SetupIntegration extends Page implements HasForms
         );
 
         $this->mappedItems = $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code;
-
-        $this->fieldMappingOptions = $this->getFieldMappingOptions(
-            $this->integration->appCombination->firstApp->name,
-            $this->integration->firstAppToken->token,
-            json_decode($this->integration->first_app_settings, true)
-        );
     }
 
     public function form(Form $form): Form
@@ -113,7 +107,16 @@ class SetupIntegration extends Page implements HasForms
                                 ->schema([
                                     Forms\Components\Select::make('first_app_fields')
                                         ->required()
-                                        ->options($this->fieldMappingOptions)
+                                        ->options(function () {
+                                            if ($this->integration->firstAppToken->token) {
+                                                return $this->getFieldMappingOptions(
+                                                    $this->integration->appCombination->firstApp->name,
+                                                    $this->integration->firstAppToken->token,
+                                                    json_decode($this->integration->first_app_settings, true)
+                                                );
+                                            }
+                                            return [];
+                                        })
                                         ->disableOptionWhen(
                                             fn (Get $get, string $value, mixed $state) => collect($get('../../custom_field_mapping'))
                                                 ->pluck('first_app_fields')
