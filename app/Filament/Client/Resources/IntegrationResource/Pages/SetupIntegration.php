@@ -2,16 +2,20 @@
 
 namespace App\Filament\Client\Resources\IntegrationResource\Pages;
 
-use App\Enums\Constant;
 use Filament\Forms;
+use App\Enums\Constant;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\Integration;
 use Filament\Resources\Pages\Page;
+use App\Forms\Context\BaseWizardStep;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Actions\Action;
+use App\Forms\FieldMapping\DefaultMappedItems;
 use Filament\Forms\Concerns\InteractsWithForms;
 use App\Filament\Client\Resources\IntegrationResource;
-use App\Forms\Context\BaseWizardStep;
+use Illuminate\Support\Facades\Crypt;
 
 class SetupIntegration extends Page implements HasForms
 {
@@ -29,12 +33,21 @@ class SetupIntegration extends Page implements HasForms
 
     protected $secondAppWizardStep;
 
+    protected $mappedItems;
+
+    protected $fieldMappingOptions;
+
     public ?array $data = [];
 
     public function mount(Integration $integration)
     {
         if ($integration) {
-            $this->integration = $integration->with('appCombination.firstApp', 'appCombination.secondApp')->first();
+            $this->integration = $integration->with(
+                'appCombination.firstApp',
+                'appCombination.secondApp',
+                'firstAppToken',
+                'secondAppToken'
+            )->first();
             $this->form->fill();
         } else {
             abort(404);
@@ -61,6 +74,14 @@ class SetupIntegration extends Page implements HasForms
             $this->integration->step,
             Constant::SECOND_APP
         );
+
+        $this->mappedItems = $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code;
+
+        $this->fieldMappingOptions = $this->getFieldMappingOptions(
+            $this->integration->appCombination->firstApp->name,
+            $this->integration->firstAppToken->token,
+            json_decode($this->integration->first_app_settings, true)
+        );
     }
 
     public function form(Form $form): Form
@@ -74,19 +95,61 @@ class SetupIntegration extends Page implements HasForms
                         ->label('Field Mapping')
                         ->schema([
                             Forms\Components\Section::make('Pre-mapped Fields')
-                                ->description('These are the fields that have been matched and set up in advance, ensuring that data from one system aligns with its proper destination in another system, simplifying the data transfer process.')
+                                ->description('These are the pre-mapped fields that make sure data moves smoothly from one app to another, simplifying the transfer.')
                                 ->schema([
                                     Forms\Components\ViewField::make('default_items')
                                         ->label('')
                                         ->view('forms.components.field-mapping')
                                         ->viewData([
-                                            'field_1' => 'Salesforce Email',
-                                            'field_2' => 'Mailchimp Email',
+                                            'mappedItems' => DefaultMappedItems::$mappedItems[$this->mappedItems]
                                         ])
                                 ])
+                                ->collapsed()
                                 ->collapsible(),
                             Forms\Components\Toggle::make('field_mapping_enabled')
                                 ->label('Enable Field Mapping')
+                                ->live(),
+                            Forms\Components\Repeater::make('custom_field_mapping')
+                                ->schema([
+                                    Forms\Components\Select::make('first_app_fields')
+                                        ->required()
+                                        ->options($this->fieldMappingOptions)
+                                        ->disableOptionWhen(
+                                            fn (Get $get, string $value, mixed $state) => collect($get('../../custom_field_mapping'))
+                                                ->pluck('first_app_fields')
+                                                ->diff([$state])
+                                                ->filter()
+                                                ->contains($value)
+                                        ),
+                                    Forms\Components\Select::make('second_app_fields')
+                                        ->required()
+                                        ->options([
+                                            'email' => 'Email',
+                                            'phone_number' => 'Phone Number',
+                                            'first_name' => 'First Name',
+                                            'last_name' => 'Last Name',
+                                            'address' => 'Address'
+                                        ])
+                                        ->disableOptionWhen(
+                                            fn (Get $get, string $value, mixed $state) => collect($get('../../custom_field_mapping'))
+                                                ->pluck('second_app_fields')
+                                                ->diff([$state])
+                                                ->filter()
+                                                ->contains($value)
+                                        )
+                                        ->reactive()
+                                ])
+                                ->required(fn (Get $get) => $get('field_mapping_enabled') == true ? true : false)
+                                ->hidden(fn (Get $get) => $get('field_mapping_enabled') == false ? true : false)
+                                ->itemLabel(function (array $state): ?string {
+                                    if (isset($state['first_app_fields']) && isset($state['second_app_fields'])) {
+                                        return $state['first_app_fields'] . ' => ' . $state['second_app_fields'];
+                                    }
+                                    return 'Select Field';
+                                })
+                                ->collapsible()
+                                ->columns(2)
+                                ->addActionLabel('Add Another Field'),
                         ]),
                     Forms\Components\Wizard\Step::make('schedule')
                         ->label('Schedule')
@@ -115,6 +178,18 @@ class SetupIntegration extends Page implements HasForms
             Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
             Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
             // more here
+        ];
+
+        return $classMap[$appName] ?? null;
+    }
+
+    private function getFieldMappingOptions($appName, $token, $settings)
+    {
+        $classMap = [
+            Constant::SALESFORCE => \App\Services\SalesforceApi::make($settings['domain'], Crypt::decryptString($token))
+                ->apiVersion($settings['api_version'])
+                ->type(ucfirst($settings['sync_data_type']))
+                ->getCustomField(),
         ];
 
         return $classMap[$appName] ?? null;

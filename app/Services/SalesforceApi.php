@@ -10,6 +10,7 @@ class SalesforceApi
     protected string $domain;
     protected string $accessToken;
     protected string $type;
+    protected string $apiVersion;
 
     public function __construct(string $domain, string $accessToken)
     {
@@ -21,6 +22,12 @@ class SalesforceApi
     public static function make(string $domain, string $accessToken): self
     {
         return new self($domain, $accessToken);
+    }
+
+    public function apiVersion(string $apiVersion): self
+    {
+        $this->apiVersion = $apiVersion;
+        return $this;
     }
 
     public function type(string $type): self
@@ -60,10 +67,7 @@ class SalesforceApi
 
     public function getCustomField(): array
     {
-
-        $client = new Client();
-
-        $response = $client->get('https://galactissync-dev-ed.develop.my.salesforce.com/services/data/v58.0/sobjects/Contact/describe', [
+        $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->accessToken,
             ]
@@ -71,22 +75,11 @@ class SalesforceApi
 
         $contactMetadata = json_decode($response->getBody());
 
-        // Filter the Contact fields to include only custom fields and select specific information
-        $customFields = array_filter($contactMetadata->fields, function ($field) {
-            return $field->custom == true;
-        });
-
-        // Extract the key (API name), label (field name), and data type for each custom field
-        $customFieldDetails = [];
-
-        foreach ($customFields as $field) {
-            $customFieldDetails[] = [
-                'key' => $field->name,
-                'label' => $field->label,
-                'type' => $field->type,
-            ];
-        }
-
-        return $customFieldDetails;
+        return array_reduce($contactMetadata->fields, function ($customFieldDetails, $field) {
+            if ($field->custom) {
+                $customFieldDetails[$field->name] = $field->label;
+            }
+            return $customFieldDetails;
+        }, []);
     }
 }
