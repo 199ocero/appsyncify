@@ -77,9 +77,9 @@ class SalesforceApi
     }
 
 
-    public function getCustomField(): array
+    public function getFields(): array
     {
-        return Cache::remember('salesforce_custom_fields', now()->addHour(), function () {
+        return Cache::remember('salesforce_fields', now()->addHour(), function () {
             try {
                 $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
                     'headers' => [
@@ -89,14 +89,23 @@ class SalesforceApi
 
                 $contactMetadata = json_decode($response->getBody());
 
-                $customFields = array_reduce($contactMetadata->fields, function ($customFieldDetails, $field) {
-                    if ($field->custom) {
-                        $customFieldDetails[$field->name] = $field->label;
-                    }
-                    return $customFieldDetails;
-                }, []);
+                $fields = [
+                    'custom' => [],
+                    'default' => [],
+                ];
 
-                return $customFields;
+                foreach ($contactMetadata->fields as $field) {
+                    $fieldName = $field->name;
+                    $fieldLabel = $field->label;
+
+                    if ($field->custom) {
+                        $fields['custom'][$fieldName] = $fieldLabel;
+                    } else {
+                        $fields['default'][$fieldName] = $fieldLabel;
+                    }
+                }
+
+                return $fields;
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 // Handle token expiration and refresh the token
                 if ($e->getResponse()->getStatusCode() === 401) {
@@ -108,6 +117,7 @@ class SalesforceApi
             }
         });
     }
+
 
     private function refreshAccessToken(string $refreshToken): string
     {

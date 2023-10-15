@@ -109,11 +109,16 @@ class SetupIntegration extends Page implements HasForms
                                         ->required()
                                         ->options(function () {
                                             if ($this->integration->firstAppToken) {
-                                                return $this->getFieldMappingOptions(
+                                                $result = $this->getFieldMappingOptions(
                                                     $this->integration->appCombination->firstApp->name,
                                                     $this->integration->firstAppToken,
                                                     json_decode($this->integration->first_app_settings, true)
                                                 );
+
+                                                return [
+                                                    'Default Field' => $result['default'],
+                                                    'Custom Field' => $result['custom'],
+                                                ];
                                             }
                                             return [];
                                         })
@@ -125,7 +130,7 @@ class SetupIntegration extends Page implements HasForms
                                                 ->contains($value)
                                         )
                                         ->searchable()
-                                        ->reactive()
+                                        ->live()
                                         ->native(false),
                                     Forms\Components\Select::make('direction')
                                         ->label('Sync Direction')
@@ -147,7 +152,8 @@ class SetupIntegration extends Page implements HasForms
                                         ->allowHtml()
                                         ->native(false)
                                         ->validationAttribute('sync direction')
-                                        ->disableOptionWhen(fn (string $value): bool => $value === 'left' || $value === 'bidirectional'),
+                                        ->disableOptionWhen(fn (string $value): bool => $value === 'left' || $value === 'bidirectional')
+                                        ->live(),
                                     Forms\Components\Select::make('second_app_fields')
                                         ->required()
                                         ->options([
@@ -165,7 +171,7 @@ class SetupIntegration extends Page implements HasForms
                                                 ->contains($value)
                                         )
                                         ->searchable()
-                                        ->reactive()
+                                        ->live()
                                         ->native(false),
                                 ])
                                 ->required(fn (Get $get) => $get('field_mapping_enabled') == true ? true : false)
@@ -223,7 +229,7 @@ class SetupIntegration extends Page implements HasForms
             Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: Crypt::decryptString($token->refresh_token))
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
-                ->getCustomField(),
+                ->getFields(),
         ];
 
         return $classMap[$appName] ?? null;
