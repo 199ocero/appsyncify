@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Cache;
 
 class SalesforceApi
 {
@@ -46,62 +47,68 @@ class SalesforceApi
 
     public function getApiVersion(): string
     {
-        try {
-            $response = $this->client->get($this->domain . '/services/data', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->accessToken,
-                ],
-            ]);
+        return Cache::remember('salesforce_api_version', now()->addHour(), function () {
+            try {
+                $response = $this->client->get($this->domain . '/services/data', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->accessToken,
+                    ],
+                ]);
 
-            $versions = json_decode($response->getBody(), true);
+                $versions = json_decode($response->getBody(), true);
 
-            if (!empty($versions)) {
-                usort($versions, function ($a, $b) {
-                    return version_compare($b['version'], $a['version']);
-                });
+                if (!empty($versions)) {
+                    usort($versions, function ($a, $b) {
+                        return version_compare($b['version'], $a['version']);
+                    });
 
-                return $versions[0]['version'];
-            } else {
-                throw new \RuntimeException('Unable to retrieve Salesforce API versions.');
+                    return $versions[0]['version'];
+                } else {
+                    throw new \RuntimeException('Unable to retrieve Salesforce API versions.');
+                }
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                // Handle token expiration and refresh the token
+                if ($e->getResponse()->getStatusCode() === 401) {
+                    $this->refreshAccessToken($this->refreshToken);
+                    // Retry the API call
+                    return $this->getApiVersion();
+                }
+                throw $e;
             }
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            // Handle token expiration and refresh the token
-            if ($e->getResponse()->getStatusCode() === 401) {
-                $this->refreshAccessToken($this->refreshToken);
-                // Retry the API call
-                return $this->getApiVersion();
-            }
-            throw $e;
-        }
+        });
     }
 
 
     public function getCustomField(): array
     {
-        try {
-            $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->accessToken,
-                ],
-            ]);
+        return Cache::remember('salesforce_custom_fields', now()->addHour(), function () {
+            try {
+                $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->accessToken,
+                    ],
+                ]);
 
-            $contactMetadata = json_decode($response->getBody());
+                $contactMetadata = json_decode($response->getBody());
 
-            return array_reduce($contactMetadata->fields, function ($customFieldDetails, $field) {
-                if ($field->custom) {
-                    $customFieldDetails[$field->name] = $field->label;
+                $customFields = array_reduce($contactMetadata->fields, function ($customFieldDetails, $field) {
+                    if ($field->custom) {
+                        $customFieldDetails[$field->name] = $field->label;
+                    }
+                    return $customFieldDetails;
+                }, []);
+
+                return $customFields;
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                // Handle token expiration and refresh the token
+                if ($e->getResponse()->getStatusCode() === 401) {
+                    $this->refreshAccessToken($this->refreshToken);
+                    // Retry the API call
+                    return $this->getCustomField();
                 }
-                return $customFieldDetails;
-            }, []);
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            // Handle token expiration and refresh the token
-            if ($e->getResponse()->getStatusCode() === 401) {
-                $this->refreshAccessToken($this->refreshToken);
-                // Retry the API call
-                return $this->getCustomField();
+                throw $e;
             }
-            throw $e;
-        }
+        });
     }
 
     private function refreshAccessToken(string $refreshToken): string
