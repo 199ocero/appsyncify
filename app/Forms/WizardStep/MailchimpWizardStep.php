@@ -3,17 +3,16 @@
 namespace App\Forms\WizardStep;
 
 use Filament\Forms;
-use App\Models\Token;
 use App\Enums\Constant;
 use App\Models\Integration;
-use MailchimpMarketing\ApiClient;
 use App\Settings\MailchimpSettings;
-use Illuminate\Support\Facades\Crypt;
 use App\Forms\Contracts\HasWizardStep;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
 use App\Forms\WizardStep\GeneralWizardStep;
+use App\Models\Token;
+use App\Services\MailchimpApi;
 use Illuminate\Validation\ValidationException;
 
 class MailchimpWizardStep implements HasWizardStep
@@ -98,23 +97,7 @@ class MailchimpWizardStep implements HasWizardStep
                     ->required()
                     ->options(function () use ($tokenId, $settings): array {
                         $token = Token::query()->find($tokenId);
-                        if ($token) {
-                            $mailchimp = new ApiClient();
-
-                            $mailchimp->setConfig([
-                                'accessToken' => Crypt::decryptString($token->token),
-                                'server' => $settings['region'],
-                            ]);
-
-                            $audience = [];
-
-                            foreach ($mailchimp->lists->getAllLists()->lists as $list) {
-                                $audience[$list->id] = $list->name;
-                            }
-
-                            return $audience;
-                        }
-                        return [];
+                        return MailchimpApi::make(accessToken: $token->token, region: $settings['region'])->getAudience();
                     })
                     ->default($settings && isset($settings['audience_id']) ? $settings['audience_id'] : null)
                     ->hidden($tokenId ? false : true),
