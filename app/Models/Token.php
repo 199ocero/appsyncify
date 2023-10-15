@@ -12,7 +12,8 @@ class Token extends Model
     protected $fillable = [
         'app_id',
         'user_id',
-        'token'
+        'token',
+        'refresh_token'
     ];
 
     public function app()

@@ -108,10 +108,10 @@ class SetupIntegration extends Page implements HasForms
                                     Forms\Components\Select::make('first_app_fields')
                                         ->required()
                                         ->options(function () {
-                                            if ($this->integration->firstAppToken->token) {
+                                            if ($this->integration->firstAppToken) {
                                                 return $this->getFieldMappingOptions(
                                                     $this->integration->appCombination->firstApp->name,
-                                                    $this->integration->firstAppToken->token,
+                                                    $this->integration->firstAppToken,
                                                     json_decode($this->integration->first_app_settings, true)
                                                 );
                                             }
@@ -189,7 +189,7 @@ class SetupIntegration extends Page implements HasForms
     private function getFieldMappingOptions($appName, $token, $settings)
     {
         $classMap = [
-            Constant::SALESFORCE => \App\Services\SalesforceApi::make($settings['domain'], Crypt::decryptString($token))
+            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: Crypt::decryptString($token->refresh_token))
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
                 ->getCustomField(),

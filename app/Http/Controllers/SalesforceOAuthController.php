@@ -34,6 +34,7 @@ class SalesforceOAuthController extends Controller
                 ],
                 [
                     'token' => Crypt::encryptString($user->token),
+                    'refresh_token' => Crypt::encryptString($user->refreshToken),
                 ]
             );
 
@@ -44,7 +45,7 @@ class SalesforceOAuthController extends Controller
                     "{$updateDataKey}_token_id" => $token->id,
                     "{$updateDataKey}_settings" => SalesforceSettings::make()
                         ->domain($user->accessTokenResponseBody['instance_url'])
-                        ->apiVersion(SalesforceApi::make(domain: $user->accessTokenResponseBody['instance_url'], accessToken: $user->token)->getApiVersion())
+                        ->apiVersion(SalesforceApi::make(domain: $user->accessTokenResponseBody['instance_url'], accessToken: $user->token, refreshToken: $user->refreshToken)->getApiVersion())
                         ->getSettings(),
                 ]);
             }
