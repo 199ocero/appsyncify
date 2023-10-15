@@ -3,7 +3,6 @@
 namespace App\Forms\WizardStep;
 
 use Filament\Forms;
-use App\Models\Token;
 use App\Enums\Constant;
 use App\Models\Integration;
 use Illuminate\Support\HtmlString;
@@ -13,6 +12,9 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
 use App\Forms\WizardStep\GeneralWizardStep;
+use App\Services\SalesforceApi;
+use Filament\Forms\Set;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\ValidationException;
 
 class SalesforceWizardStep implements HasWizardStep
@@ -104,6 +106,47 @@ class SalesforceWizardStep implements HasWizardStep
                                 Forms\Components\Actions\Action::make('update_api_version')
                                     ->icon('heroicon-o-arrow-path')
                                     ->requiresConfirmation()
+                                    ->modalHeading('Update Api Version')
+                                    ->modalIcon('heroicon-o-arrow-path')
+                                    ->action(function ($state, Set $set) use ($integrationId, $tokenId, $settings, $type) {
+                                        if ($tokenId) {
+                                            $integration = Integration::query()->with('firstAppToken', 'secondAppToken')->find($integrationId);
+
+                                            $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
+
+                                            $apiVersion = SalesforceApi::make(
+                                                domain: $settings['domain'],
+                                                accessToken: Crypt::decryptString($type == Constant::FIRST_APP ? $integration->firstAppToken->token : $integration->secondAppToken->token),
+                                                refreshToken: Crypt::decryptString($type == Constant::FIRST_APP ? $integration->firstAppToken->refresh_token : $integration->secondAppToken->refresh_token)
+                                            )
+                                                ->getApiVersion();
+
+                                            if ($state != $apiVersion) {
+                                                $integration->update([
+                                                    "{$updateDataKey}_settings" => SalesforceSettings::make()
+                                                        ->domain($settings['domain'])
+                                                        ->apiVersion($apiVersion)
+                                                        ->syncDataType($settings['sync_data_type'])
+                                                        ->getSettings(),
+                                                ]);
+
+                                                $set('api_version', $apiVersion);
+
+                                                Notification::make()
+                                                    ->title('Api Version Updated')
+                                                    ->success()
+                                                    ->color('success')
+                                                    ->send();
+                                            } else {
+
+                                                Notification::make()
+                                                    ->title('API Version Is Up to Date')
+                                                    ->info()
+                                                    ->color('info')
+                                                    ->send();
+                                            }
+                                        }
+                                    })
                             )
                             ->disabled($settings && isset($settings['api_version']) ? true : false)
                             ->default($settings && isset($settings['api_version']) ? $settings['api_version'] : null)
