@@ -124,6 +124,7 @@ class SetupIntegration extends Page implements HasForms
                                                 ->filter()
                                                 ->contains($value)
                                         )
+                                        ->searchable()
                                         ->reactive()
                                         ->native(false),
                                     Forms\Components\Select::make('direction')
@@ -144,7 +145,8 @@ class SetupIntegration extends Page implements HasForms
                                         </div>",
                                         ])
                                         ->allowHtml()
-                                        ->native(false),
+                                        ->native(false)
+                                        ->validationAttribute('sync direction'),
                                     Forms\Components\Select::make('second_app_fields')
                                         ->required()
                                         ->options([
@@ -161,6 +163,7 @@ class SetupIntegration extends Page implements HasForms
                                                 ->filter()
                                                 ->contains($value)
                                         )
+                                        ->searchable()
                                         ->reactive()
                                         ->native(false),
                                 ])
