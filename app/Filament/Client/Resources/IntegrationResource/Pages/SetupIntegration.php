@@ -131,14 +131,14 @@ class SetupIntegration extends Page implements HasForms
                                         ->label('Sync Direction')
                                         ->required()
                                         ->options([
-                                            'left' => "<div class='flex items-center justify-between gap-4'>
-                                                <span>Left</span>
-                                                <span><--</span>
-                                            </div>",
                                             'right' => "<div class='flex items-center justify-between gap-4'>
                                             <span>Right</span>
                                             <span>--></span>
                                         </div>",
+                                            'left' => "<div class='flex items-center justify-between gap-4'>
+                                                <span>Left</span>
+                                                <span><--</span>
+                                            </div>",
                                             'bidirectional' => "<div class='flex items-center justify-between gap-4'>
                                             <span>Bidirectional</span>
                                             <span><--></span>
@@ -146,7 +146,8 @@ class SetupIntegration extends Page implements HasForms
                                         ])
                                         ->allowHtml()
                                         ->native(false)
-                                        ->validationAttribute('sync direction'),
+                                        ->validationAttribute('sync direction')
+                                        ->disableOptionWhen(fn (string $value): bool => $value === 'left' || $value === 'bidirectional'),
                                     Forms\Components\Select::make('second_app_fields')
                                         ->required()
                                         ->options([
@@ -170,8 +171,13 @@ class SetupIntegration extends Page implements HasForms
                                 ->required(fn (Get $get) => $get('field_mapping_enabled') == true ? true : false)
                                 ->hidden(fn (Get $get) => $get('field_mapping_enabled') == false ? true : false)
                                 ->itemLabel(function (array $state): ?string {
-                                    if (isset($state['first_app_fields']) && isset($state['second_app_fields'])) {
-                                        return $state['first_app_fields'] . ' => ' . $state['second_app_fields'];
+                                    if (isset($state['first_app_fields']) && isset($state['second_app_fields']) && isset($state['direction'])) {
+                                        $direction = match ($state['direction']) {
+                                            'right' => '-->',
+                                            'left' => '<--',
+                                            'bidirectional' => '<-->',
+                                        };
+                                        return $state['first_app_fields'] . ' ' . $direction . ' ' . $state['second_app_fields'];
                                     }
                                     return 'Select Field';
                                 })
