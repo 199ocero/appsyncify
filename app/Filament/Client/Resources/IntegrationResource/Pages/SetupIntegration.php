@@ -123,7 +123,28 @@ class SetupIntegration extends Page implements HasForms
                                                 ->diff([$state])
                                                 ->filter()
                                                 ->contains($value)
-                                        ),
+                                        )
+                                        ->reactive()
+                                        ->native(false),
+                                    Forms\Components\Select::make('direction')
+                                        ->label('Sync Direction')
+                                        ->required()
+                                        ->options([
+                                            'left' => "<div class='flex items-center justify-between gap-4'>
+                                                <span>Left</span>
+                                                <span><--</span>
+                                            </div>",
+                                            'right' => "<div class='flex items-center justify-between gap-4'>
+                                            <span>Right</span>
+                                            <span>--></span>
+                                        </div>",
+                                            'bidirectional' => "<div class='flex items-center justify-between gap-4'>
+                                            <span>Bidirectional</span>
+                                            <span><--></span>
+                                        </div>",
+                                        ])
+                                        ->allowHtml()
+                                        ->native(false),
                                     Forms\Components\Select::make('second_app_fields')
                                         ->required()
                                         ->options([
@@ -141,6 +162,7 @@ class SetupIntegration extends Page implements HasForms
                                                 ->contains($value)
                                         )
                                         ->reactive()
+                                        ->native(false),
                                 ])
                                 ->required(fn (Get $get) => $get('field_mapping_enabled') == true ? true : false)
                                 ->hidden(fn (Get $get) => $get('field_mapping_enabled') == false ? true : false)
@@ -151,7 +173,7 @@ class SetupIntegration extends Page implements HasForms
                                     return 'Select Field';
                                 })
                                 ->collapsible()
-                                ->columns(2)
+                                ->columns(3)
                                 ->addActionLabel('Add Another Field'),
                         ]),
                     Forms\Components\Wizard\Step::make('schedule')

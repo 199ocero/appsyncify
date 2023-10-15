@@ -99,6 +99,7 @@ class MailchimpWizardStep implements HasWizardStep
                         $token = Token::query()->find($tokenId);
                         return MailchimpApi::make(accessToken: $token->token, region: $settings['region'])->getAudience();
                     })
+                    ->native(false)
                     ->default($settings && isset($settings['audience_id']) ? $settings['audience_id'] : null)
                     ->hidden($tokenId ? false : true),
             ]);
