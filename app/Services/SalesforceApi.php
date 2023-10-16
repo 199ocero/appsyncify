@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Token;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 
 class SalesforceApi
 {
@@ -111,7 +113,7 @@ class SalesforceApi
                 if ($e->getResponse()->getStatusCode() === 401) {
                     $this->refreshAccessToken($this->refreshToken);
                     // Retry the API call
-                    return $this->getCustomField();
+                    return $this->getFields();
                 }
                 throw $e;
             }
@@ -124,7 +126,7 @@ class SalesforceApi
         $response = $this->client->post($this->domain . '/services/oauth2/token', [
             'form_params' => [
                 'grant_type' => 'refresh_token',
-                'refresh_token' => $refreshToken,
+                'refresh_token' => Crypt::decryptString($refreshToken),
                 'client_id' => env('SALESFORCE_CLIENT_ID'),
                 'client_secret' => env('SALESFORCE_CLIENT_SECRET'),
             ],
@@ -138,8 +140,9 @@ class SalesforceApi
 
             if ($tokenModel) {
                 // Update the access token
-                $tokenModel->access_token = $tokenData['access_token'];
-                $tokenModel->save();
+                $tokenModel->update([
+                    'token' => Crypt::encryptString($tokenData['access_token']),
+                ]);
 
                 // Update the class's access token property
                 $this->accessToken = $tokenData['access_token'];

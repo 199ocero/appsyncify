@@ -50,8 +50,6 @@ class SetupIntegration extends Page implements HasForms
                 'secondAppToken'
             ]);
             $this->integration = $integration;
-            $this->heading = $integration->name;
-            $this->subheading = $integration->description;
             $this->form->fill();
         } else {
             abort(404);
@@ -60,6 +58,9 @@ class SetupIntegration extends Page implements HasForms
 
     public function boot()
     {
+        $this->heading = $this->integration->name;
+        $this->subheading = $this->integration->description;
+
         $this->baseWizardStep = app(BaseWizardStep::class);
 
         $this->firstAppWizardStep = $this->createWizardStep(
@@ -230,7 +231,7 @@ class SetupIntegration extends Page implements HasForms
     private function getFieldMappingOptions($appName, $token, $settings)
     {
         $classMap = [
-            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: Crypt::decryptString($token->refresh_token))
+            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
                 ->getFields(),
