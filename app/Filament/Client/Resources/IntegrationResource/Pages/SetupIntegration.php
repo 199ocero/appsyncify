@@ -50,6 +50,8 @@ class SetupIntegration extends Page implements HasForms
                 'secondAppToken'
             ]);
             $this->integration = $integration;
+            $this->heading = $integration->name;
+            $this->subheading = $integration->description;
             $this->form->fill();
         } else {
             abort(404);
