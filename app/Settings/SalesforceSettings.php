@@ -13,19 +13,19 @@ class SalesforceSettings
         return new self();
     }
 
-    public function domain(string $domain): self
+    public function domain(string $domain = null): self
     {
         $this->domain = $domain;
         return $this;
     }
 
-    public function apiVersion(string $apiVersion): self
+    public function apiVersion(string $apiVersion = null): self
     {
         $this->apiVersion = $apiVersion;
         return $this;
     }
 
-    public function syncDataType(string $syncDataType): self
+    public function syncDataType(string $syncDataType = null): self
     {
         $this->syncDataType = $syncDataType;
         return $this;
