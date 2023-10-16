@@ -39,15 +39,17 @@ class SetupIntegration extends Page implements HasForms
 
     public ?array $data = [];
 
-    public function mount(Integration $integration)
+    public function mount($integration)
     {
+
         if ($integration) {
-            $this->integration = $integration->with(
+            $integration->load([
                 'appCombination.firstApp',
                 'appCombination.secondApp',
                 'firstAppToken',
                 'secondAppToken'
-            )->first();
+            ]);
+            $this->integration = $integration;
             $this->form->fill();
         } else {
             abort(404);
