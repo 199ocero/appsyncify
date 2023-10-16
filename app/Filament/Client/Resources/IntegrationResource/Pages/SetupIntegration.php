@@ -115,6 +115,7 @@ class SetupIntegration extends Page implements HasForms
                                         ->options(function () {
                                             if ($this->integration->firstAppToken) {
                                                 $result = $this->getFieldMappingOptions(
+                                                    $this->integration->id,
                                                     $this->integration->appCombination->firstApp->name,
                                                     $this->integration->firstAppToken,
                                                     json_decode($this->integration->first_app_settings, true)
@@ -211,10 +212,10 @@ class SetupIntegration extends Page implements HasForms
             ->statePath('data');
     }
 
-    private function createWizardStep($app, $token_id = null, $integration_id, $settings, $step, $type)
+    private function createWizardStep($app, $tokenId = null, $integrationId, $settings, $step, $type)
     {
         $class = $this->getClassForApp($app->name);
-        return $this->baseWizardStep->wizardStep(app($class), $app, $token_id, $integration_id, $settings, $step, $type);
+        return $this->baseWizardStep->wizardStep(app($class), $app, $tokenId, $integrationId, $settings, $step, $type);
     }
 
     private function getClassForApp($appName)
@@ -228,13 +229,13 @@ class SetupIntegration extends Page implements HasForms
         return $classMap[$appName] ?? null;
     }
 
-    private function getFieldMappingOptions($appName, $token, $settings)
+    private function getFieldMappingOptions($integrationId, $appName, $token, $settings)
     {
         $classMap = [
             Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
-                ->getFields(),
+                ->getFields($integrationId),
         ];
 
         return $classMap[$appName] ?? null;

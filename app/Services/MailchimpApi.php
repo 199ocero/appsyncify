@@ -24,9 +24,9 @@ class MailchimpApi
         return new self($accessToken, $region);
     }
 
-    public function getAudience(): array
+    public function getAudience(int $audienceId): array
     {
-        return Cache::remember('mailchimp_audience', now()->addHour(), function () {
+        return Cache::remember($audienceId . '_mailchimp_audience', now()->addHour(), function () {
             $this->mailchimpApiClient->setConfig([
                 'accessToken' => Crypt::decryptString($this->accessToken),
                 'server' => $this->region,

@@ -79,9 +79,9 @@ class SalesforceApi
     }
 
 
-    public function getFields(): array
+    public function getFields(int $integrationId): array
     {
-        return Cache::remember('salesforce_fields', now()->addHour(), function () {
+        return Cache::remember($integrationId . '_salesforce_fields', now()->addHour(), function () {
             try {
                 $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
                     'headers' => [
@@ -113,7 +113,7 @@ class SalesforceApi
                 if ($e->getResponse()->getStatusCode() === 401) {
                     $this->refreshAccessToken($this->refreshToken);
                     // Retry the API call
-                    return $this->getFields();
+                    return $this->getFields($integrationId);
                 }
                 throw $e;
             }

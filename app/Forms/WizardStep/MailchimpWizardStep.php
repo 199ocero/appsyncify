@@ -95,9 +95,9 @@ class MailchimpWizardStep implements HasWizardStep
                 Forms\Components\Select::make('audience_id')
                     ->label('Mailchimp Audience')
                     ->required()
-                    ->options(function () use ($tokenId, $settings): array {
+                    ->options(function () use ($tokenId, $settings, $integrationId): array {
                         $token = Token::query()->find($tokenId);
-                        return MailchimpApi::make(accessToken: $token->token, region: $settings['region'])->getAudience();
+                        return MailchimpApi::make(accessToken: $token->token, region: $settings['region'])->getAudience($integrationId);
                     })
                     ->searchable()
                     ->native(false)
