@@ -26,15 +26,12 @@ class MailchimpOAuthController extends Controller
     {
         if (session()->has(['mailchimp_app_id', 'mailchimp_integration_id', 'mailchimp_type'])) {
             $user = Socialite::driver('mailchimp')->user();
-            $token = Token::updateOrCreate(
-                [
-                    'user_id' => auth()->user()->id,
-                    'app_id' => session('mailchimp_app_id'),
-                ],
-                [
-                    'token' => Crypt::encryptString($user->token),
-                ]
-            );
+
+            $token = Token::query()->create([
+                'user_id' => auth()->user()->id,
+                'app_id' => session('mailchimp_app_id'),
+                'token' => Crypt::encryptString($user->token)
+            ]);
 
             if (session('mailchimp_type') == Constant::FIRST_APP || session('mailchimp_type') == Constant::SECOND_APP) {
                 $updateDataKey = session('mailchimp_type') == Constant::FIRST_APP ? 'first_app' : 'second_app';

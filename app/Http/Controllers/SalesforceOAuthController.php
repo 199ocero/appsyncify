@@ -27,16 +27,12 @@ class SalesforceOAuthController extends Controller
         if (session()->has(['salesforce_app_id', 'salesforce_integration_id', 'salesforce_type'])) {
             $user = Socialite::driver('salesforce')->user();
 
-            $token = Token::updateOrCreate(
-                [
-                    'user_id' => auth()->user()->id,
-                    'app_id' => session('salesforce_app_id'),
-                ],
-                [
-                    'token' => Crypt::encryptString($user->token),
-                    'refresh_token' => Crypt::encryptString($user->refreshToken),
-                ]
-            );
+            $token = Token::query()->create([
+                'user_id' => auth()->user()->id,
+                'app_id' => session('salesforce_app_id'),
+                'token' => Crypt::encryptString($user->token),
+                'refresh_token' => Crypt::encryptString($user->refreshToken),
+            ]);
 
             if (session('salesforce_type') == Constant::FIRST_APP || session('salesforce_type') == Constant::SECOND_APP) {
                 $updateDataKey = session('salesforce_type') == Constant::FIRST_APP ? 'first_app' : 'second_app';
