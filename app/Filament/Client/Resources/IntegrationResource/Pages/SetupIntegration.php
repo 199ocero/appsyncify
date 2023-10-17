@@ -4,18 +4,15 @@ namespace App\Filament\Client\Resources\IntegrationResource\Pages;
 
 use Filament\Forms;
 use App\Enums\Constant;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\Integration;
 use Filament\Resources\Pages\Page;
 use App\Forms\Context\BaseWizardStep;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Actions\Action;
-use App\Forms\FieldMapping\DefaultMappedItems;
 use Filament\Forms\Concerns\InteractsWithForms;
 use App\Filament\Client\Resources\IntegrationResource;
-use Illuminate\Support\Facades\Crypt;
+use App\Forms\WizardStep\FieldMappingWizardStep;
 
 class SetupIntegration extends Page implements HasForms
 {
@@ -33,9 +30,7 @@ class SetupIntegration extends Page implements HasForms
 
     protected $secondAppWizardStep;
 
-    protected $mappedItems;
-
-    protected $fieldMappingOptions;
+    protected $fieldMappingWizardStep;
 
     public ?array $data = [];
 
@@ -71,6 +66,7 @@ class SetupIntegration extends Page implements HasForms
             $this->integration->step,
             Constant::FIRST_APP
         );
+
         $this->secondAppWizardStep = $this->createWizardStep(
             $this->integration->appCombination->secondApp,
             $this->integration->second_app_token_id,
@@ -80,7 +76,11 @@ class SetupIntegration extends Page implements HasForms
             Constant::SECOND_APP
         );
 
-        $this->mappedItems = $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code;
+        $this->fieldMappingWizardStep = $this->baseWizardStep->fieldMappingWizardStep(
+            app(FieldMappingWizardStep::class),
+            $this->integration,
+            $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code
+        );
     }
 
     public function form(Form $form): Form
@@ -90,111 +90,7 @@ class SetupIntegration extends Page implements HasForms
                 Forms\Components\Wizard::make([
                     $this->firstAppWizardStep,
                     $this->secondAppWizardStep,
-                    Forms\Components\Wizard\Step::make('field_mapping')
-                        ->label('Field Mapping')
-                        ->schema([
-                            Forms\Components\Section::make('Pre-mapped Fields')
-                                ->description('These are the pre-mapped fields that make sure data moves smoothly from one app to another, simplifying the transfer.')
-                                ->schema([
-                                    Forms\Components\ViewField::make('default_items')
-                                        ->label('')
-                                        ->view('forms.components.field-mapping')
-                                        ->viewData([
-                                            'mappedItems' => DefaultMappedItems::$mappedItems[$this->mappedItems]
-                                        ])
-                                ])
-                                ->collapsed()
-                                ->collapsible(),
-                            Forms\Components\Toggle::make('field_mapping_enabled')
-                                ->label('Enable Field Mapping')
-                                ->live(),
-                            Forms\Components\Repeater::make('custom_field_mapping')
-                                ->schema([
-                                    Forms\Components\Select::make('first_app_fields')
-                                        ->required()
-                                        ->options(function () {
-                                            if ($this->integration->firstAppToken) {
-                                                $result = $this->getFieldMappingOptions(
-                                                    $this->integration->id,
-                                                    $this->integration->appCombination->firstApp->name,
-                                                    $this->integration->firstAppToken,
-                                                    json_decode($this->integration->first_app_settings, true)
-                                                );
-
-                                                return [
-                                                    'Default Field' => $result['default'],
-                                                    'Custom Field' => $result['custom'],
-                                                ];
-                                            }
-                                            return [];
-                                        })
-                                        ->disableOptionWhen(
-                                            fn (Get $get, string $value, mixed $state) => collect($get('../../custom_field_mapping'))
-                                                ->pluck('first_app_fields')
-                                                ->diff([$state])
-                                                ->filter()
-                                                ->contains($value)
-                                        )
-                                        ->searchable()
-                                        ->live(),
-                                    Forms\Components\Select::make('direction')
-                                        ->label('Sync Direction')
-                                        ->required()
-                                        ->options([
-                                            'right' => "<div class='flex items-center justify-between gap-4'>
-                                            <span>Right</span>
-                                            <span>--></span>
-                                        </div>",
-                                            'left' => "<div class='flex items-center justify-between gap-4'>
-                                                <span>Left</span>
-                                                <span><--</span>
-                                            </div>",
-                                            'bidirectional' => "<div class='flex items-center justify-between gap-4'>
-                                            <span>Bidirectional</span>
-                                            <span><--></span>
-                                        </div>",
-                                        ])
-                                        ->allowHtml()
-
-                                        ->validationAttribute('sync direction')
-                                        ->disableOptionWhen(fn (string $value): bool => $value === 'left' || $value === 'bidirectional')
-                                        ->live(),
-                                    Forms\Components\Select::make('second_app_fields')
-                                        ->required()
-                                        ->options([
-                                            'email' => 'Email',
-                                            'phone_number' => 'Phone Number',
-                                            'first_name' => 'First Name',
-                                            'last_name' => 'Last Name',
-                                            'address' => 'Address'
-                                        ])
-                                        ->disableOptionWhen(
-                                            fn (Get $get, string $value, mixed $state) => collect($get('../../custom_field_mapping'))
-                                                ->pluck('second_app_fields')
-                                                ->diff([$state])
-                                                ->filter()
-                                                ->contains($value)
-                                        )
-                                        ->searchable()
-                                        ->live(),
-                                ])
-                                ->required(fn (Get $get) => $get('field_mapping_enabled') == true ? true : false)
-                                ->hidden(fn (Get $get) => $get('field_mapping_enabled') == false ? true : false)
-                                ->itemLabel(function (array $state): ?string {
-                                    if (isset($state['first_app_fields']) && isset($state['second_app_fields']) && isset($state['direction'])) {
-                                        $direction = match ($state['direction']) {
-                                            'right' => '-->',
-                                            'left' => '<--',
-                                            'bidirectional' => '<-->',
-                                        };
-                                        return $state['first_app_fields'] . ' ' . $direction . ' ' . $state['second_app_fields'];
-                                    }
-                                    return 'Select Field';
-                                })
-                                ->collapsible()
-                                ->columns(3)
-                                ->addActionLabel('Add Another Field'),
-                        ]),
+                    $this->fieldMappingWizardStep,
                     Forms\Components\Wizard\Step::make('schedule')
                         ->label('Schedule')
                         ->schema([]),
@@ -222,18 +118,6 @@ class SetupIntegration extends Page implements HasForms
             Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
             Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
             // more here
-        ];
-
-        return $classMap[$appName] ?? null;
-    }
-
-    private function getFieldMappingOptions($integrationId, $appName, $token, $settings)
-    {
-        $classMap = [
-            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: $token->refresh_token)
-                ->apiVersion($settings['api_version'])
-                ->type(ucfirst($settings['sync_data_type']))
-                ->getFields($integrationId),
         ];
 
         return $classMap[$appName] ?? null;
