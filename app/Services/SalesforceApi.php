@@ -89,14 +89,14 @@ class SalesforceApi
                     ],
                 ]);
 
-                $contactMetadata = json_decode($response->getBody());
+                $fieldsMetadata = json_decode($response->getBody());
 
                 $fields = [
                     'custom' => [],
                     'default' => [],
                 ];
 
-                foreach ($contactMetadata->fields as $field) {
+                foreach ($fieldsMetadata->fields as $field) {
                     $fieldName = $field->name;
                     $fieldLabel = $field->label;
 
