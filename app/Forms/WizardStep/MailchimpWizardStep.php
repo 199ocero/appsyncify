@@ -100,7 +100,9 @@ class MailchimpWizardStep implements HasWizardStep
                     ->required()
                     ->options(function () use ($tokenId, $settings, $integrationId): array {
                         $token = Token::query()->find($tokenId);
-                        return MailchimpApi::make(accessToken: $token->token, region: $settings['region'])->getAudience($integrationId);
+                        if ($token) {
+                            return MailchimpApi::make(accessToken: $token->token, region: $settings['region'])->getAudience($integrationId);
+                        }
                     })
                     ->searchable()
                     ->default($settings && isset($settings['audience_id']) ? $settings['audience_id'] : null)
