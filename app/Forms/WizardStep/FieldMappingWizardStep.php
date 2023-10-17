@@ -38,6 +38,9 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                 Forms\Components\Repeater::make('custom_field_mapping')
                     ->schema([
                         Forms\Components\Select::make('first_app_fields')
+                            ->label(function () use ($integration) {
+                                return $integration->appCombination->firstApp->name . ' Fields';
+                            })
                             ->required()
                             ->options(function () use ($integration) {
                                 if ($integration->firstAppToken) {
@@ -87,6 +90,9 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                             ->disableOptionWhen(fn (string $value): bool => $value === 'left' || $value === 'bidirectional')
                             ->live(),
                         Forms\Components\Select::make('second_app_fields')
+                            ->label(function () use ($integration) {
+                                return $integration->appCombination->secondApp->name . ' Fields';
+                            })
                             ->required()
                             ->options(function () use ($integration) {
                                 if ($integration->secondAppToken) {
