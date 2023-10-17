@@ -75,8 +75,9 @@ class SalesforceWizardStep implements HasWizardStep
                             ]);
                             return route('auth.' . $app->app_code);
                         })
+                        ->badge()
                         ->icon(fn () => $tokenId ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
-                        ->color(fn () => $tokenId ? 'gray' : 'primary')
+                        ->color(fn () => $tokenId ? 'success' : 'primary')
                         ->disabled(fn () => $tokenId ? true : false),
                     Forms\Components\Actions\Action::make('disconnect' . $app->app_code)
                         ->label('Disconnect')
@@ -89,6 +90,8 @@ class SalesforceWizardStep implements HasWizardStep
                         ->action(function () use ($integrationId, $type, $step, $tokenId) {
                             return GeneralWizardStep::make($integrationId, $type, $step, $tokenId)->disconnectApp();
                         })
+                        ->badge()
+                        ->tooltip('You can disconnect from ' . $app->name . ' and start over!')
                         ->hidden($tokenId ? false : true)
                 ]),
                 Forms\Components\Section::make('Salesforce Resource')
