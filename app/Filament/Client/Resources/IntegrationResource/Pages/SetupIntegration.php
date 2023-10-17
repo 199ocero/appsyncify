@@ -136,8 +136,7 @@ class SetupIntegration extends Page implements HasForms
                                                 ->contains($value)
                                         )
                                         ->searchable()
-                                        ->live()
-                                        ->native(false),
+                                        ->live(),
                                     Forms\Components\Select::make('direction')
                                         ->label('Sync Direction')
                                         ->required()
@@ -156,7 +155,7 @@ class SetupIntegration extends Page implements HasForms
                                         </div>",
                                         ])
                                         ->allowHtml()
-                                        ->native(false)
+
                                         ->validationAttribute('sync direction')
                                         ->disableOptionWhen(fn (string $value): bool => $value === 'left' || $value === 'bidirectional')
                                         ->live(),
@@ -177,8 +176,7 @@ class SetupIntegration extends Page implements HasForms
                                                 ->contains($value)
                                         )
                                         ->searchable()
-                                        ->live()
-                                        ->native(false),
+                                        ->live(),
                                 ])
                                 ->required(fn (Get $get) => $get('field_mapping_enabled') == true ? true : false)
                                 ->hidden(fn (Get $get) => $get('field_mapping_enabled') == false ? true : false)
