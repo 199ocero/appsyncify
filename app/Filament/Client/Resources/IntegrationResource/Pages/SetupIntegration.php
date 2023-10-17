@@ -114,12 +114,11 @@ class SetupIntegration extends Page implements HasForms
 
     private function getClassForApp($appName)
     {
-        $classMap = [
+        return match ($appName) {
             Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
             Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
-            // more here
-        ];
-
-        return $classMap[$appName] ?? null;
+                // Add more cases as needed
+            default => null,
+        };
     }
 }
