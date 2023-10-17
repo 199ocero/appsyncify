@@ -41,4 +41,24 @@ class MailchimpApi
             return $audience;
         });
     }
+
+    public function getAudienceFields(string $audienceId): array
+    {
+        return Cache::remember($audienceId . '_mailchimp_audience_fields', now()->addHour(), function () use ($audienceId) {
+            $this->mailchimpApiClient->setConfig([
+                'accessToken' => Crypt::decryptString($this->accessToken),
+                'server' => $this->region,
+            ]);
+
+            $mergeFields = $this->mailchimpApiClient->lists->getListMergeFields($audienceId);
+
+            $fields = [];
+
+            foreach ($mergeFields->merge_fields as $field) {
+                $fields[$field->tag] = $field->name;
+            }
+
+            return $fields;
+        });
+    }
 }

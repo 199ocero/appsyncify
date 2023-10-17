@@ -88,13 +88,19 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                             ->live(),
                         Forms\Components\Select::make('second_app_fields')
                             ->required()
-                            ->options([
-                                'email' => 'Email',
-                                'phone_number' => 'Phone Number',
-                                'first_name' => 'First Name',
-                                'last_name' => 'Last Name',
-                                'address' => 'Address'
-                            ])
+                            ->options(function () use ($integration) {
+                                if ($integration->secondAppToken) {
+                                    $result = $this->getFieldMappingOptions(
+                                        $integration->id,
+                                        $integration->appCombination->secondApp->name,
+                                        $integration->secondAppToken,
+                                        json_decode($integration->second_app_settings, true)
+                                    );
+
+                                    return $result;
+                                }
+                                return [];
+                            })
                             ->disableOptionWhen(
                                 fn (Get $get, string $value, mixed $state) => collect($get('../../custom_field_mapping'))
                                     ->pluck('second_app_fields')
@@ -126,13 +132,14 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
 
     private function getFieldMappingOptions($integrationId, $appName, $token, $settings)
     {
-        $classMap = [
+        return match ($appName) {
             Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
                 ->getFields($integrationId),
-        ];
-
-        return $classMap[$appName] ?? null;
+            Constant::MAILCHIMP => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
+                ->getAudienceFields($settings['audience_id']),
+            default => null,
+        };
     }
 }
