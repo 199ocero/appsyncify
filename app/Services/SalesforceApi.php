@@ -81,7 +81,7 @@ class SalesforceApi
 
     public function getFields(int $integrationId): array
     {
-        return Cache::remember($integrationId . '_salesforce_fields', now()->addHour(), function () {
+        return Cache::remember($integrationId . '_salesforce_fields', now()->addHour(), function () use ($integrationId) {
             try {
                 $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
                     'headers' => [
