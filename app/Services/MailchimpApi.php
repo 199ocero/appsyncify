@@ -15,7 +15,7 @@ class MailchimpApi
     public function __construct(string $accessToken, string $region)
     {
         $this->mailchimpApiClient = new ApiClient();
-        $this->accessToken = $accessToken;
+        $this->accessToken = Crypt::decryptString($accessToken);
         $this->region = $region;
     }
 
@@ -28,7 +28,7 @@ class MailchimpApi
     {
         return Cache::remember($audienceId . '_mailchimp_audience', now()->addHour(), function () {
             $this->mailchimpApiClient->setConfig([
-                'accessToken' => Crypt::decryptString($this->accessToken),
+                'accessToken' => $this->accessToken,
                 'server' => $this->region,
             ]);
 
@@ -46,7 +46,7 @@ class MailchimpApi
     {
         return Cache::remember($audienceId . '_mailchimp_audience_fields', now()->addHour(), function () use ($audienceId) {
             $this->mailchimpApiClient->setConfig([
-                'accessToken' => Crypt::decryptString($this->accessToken),
+                'accessToken' => $this->accessToken,
                 'server' => $this->region,
             ]);
 

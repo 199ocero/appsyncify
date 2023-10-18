@@ -14,7 +14,6 @@ use Filament\Notifications\Notification;
 use App\Forms\WizardStep\GeneralWizardStep;
 use App\Services\SalesforceApi;
 use Filament\Forms\Set;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\ValidationException;
 
 class SalesforceWizardStep implements HasWizardStep
@@ -120,8 +119,8 @@ class SalesforceWizardStep implements HasWizardStep
 
                                             $apiVersion = SalesforceApi::make(
                                                 domain: $settings['domain'],
-                                                accessToken: Crypt::decryptString($type == Constant::FIRST_APP ? $integration->firstAppToken->token : $integration->secondAppToken->token),
-                                                refreshToken: Crypt::decryptString($type == Constant::FIRST_APP ? $integration->firstAppToken->refresh_token : $integration->secondAppToken->refresh_token)
+                                                accessToken: $type == Constant::FIRST_APP ? $integration->firstAppToken->token : $integration->secondAppToken->token,
+                                                refreshToken: $type == Constant::FIRST_APP ? $integration->firstAppToken->refresh_token : $integration->secondAppToken->refresh_token
                                             )
                                                 ->getApiVersion();
 

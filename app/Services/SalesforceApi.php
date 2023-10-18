@@ -20,8 +20,8 @@ class SalesforceApi
     {
         $this->client = new Client();
         $this->domain = $domain;
-        $this->accessToken = $accessToken;
-        $this->refreshToken = $refreshToken;
+        $this->accessToken = Crypt::decryptString($accessToken);
+        $this->refreshToken = Crypt::decryptString($refreshToken);
     }
 
     public static function make(string $domain, string $accessToken, string $refreshToken): self
@@ -126,7 +126,7 @@ class SalesforceApi
         $response = $this->client->post($this->domain . '/services/oauth2/token', [
             'form_params' => [
                 'grant_type' => 'refresh_token',
-                'refresh_token' => Crypt::decryptString($refreshToken),
+                'refresh_token' => $refreshToken,
                 'client_id' => env('SALESFORCE_CLIENT_ID'),
                 'client_secret' => env('SALESFORCE_CLIENT_SECRET'),
             ],

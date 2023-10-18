@@ -139,7 +139,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
     private function getFieldMappingOptions($integrationId, $appName, $token, $settings)
     {
         return match ($appName) {
-            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: Crypt::decryptString($token->token), refreshToken: $token->refresh_token)
+            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
                 ->getFields($integrationId),
