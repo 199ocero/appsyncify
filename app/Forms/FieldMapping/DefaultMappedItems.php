@@ -6,14 +6,14 @@ class DefaultMappedItems
 {
     const salesforce_mailchimp = [
         'FIRST_APP' => [
-            'Email',
-            'First Name',
-            'Last Name'
+            'Email' => 'Email',
+            'FirstName' => 'First Name',
+            'LastName' => 'Last Name'
         ],
         'SECOND_APP' => [
-            'Email',
-            'First Name',
-            'Last Name'
+            'email_address' => 'Email',
+            'FNAME' => 'First Name',
+            'LNAME' => 'Last Name'
         ],
         'FIRST_APP_LOGO' => 'images/logo/salesforce.svg',
         'SECOND_APP_LOGO' => 'images/logo/mailchimp.svg',
