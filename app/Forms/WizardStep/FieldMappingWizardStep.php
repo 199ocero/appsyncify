@@ -51,10 +51,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                         json_decode($integration->first_app_settings, true)
                                     );
 
-                                    return [
-                                        'Default Field' => $result['default'],
-                                        'Custom Field' => $result['custom'],
-                                    ];
+                                    return $result;
                                 }
                                 return [];
                             })

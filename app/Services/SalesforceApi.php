@@ -94,8 +94,8 @@ class SalesforceApi
                 $fieldsMetadata = json_decode($response->getBody());
 
                 $fields = [
-                    'custom' => [],
-                    'default' => [],
+                    'Custom Fields' => [],
+                    'Default Fields' => [],
                 ];
 
                 foreach ($fieldsMetadata->fields as $field) {
@@ -103,9 +103,9 @@ class SalesforceApi
                     $fieldLabel = $field->label;
 
                     if ($field->custom) {
-                        $fields['custom'][$fieldName] = $fieldLabel;
+                        $fields['Custom Fields'][$fieldName] = $fieldLabel;
                     } else {
-                        $fields['default'][$fieldName] = $fieldLabel;
+                        $fields['Default Fields'][$fieldName] = $fieldLabel;
                     }
                 }
 
