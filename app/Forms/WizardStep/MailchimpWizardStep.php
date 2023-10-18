@@ -71,6 +71,7 @@ class MailchimpWizardStep implements HasWizardStep
                             return route('auth.' . $app->app_code);
                         })
                         ->badge()
+                        ->tooltip('Great! You can connect to ' . $app->name . ' now!')
                         ->icon(fn () => $tokenId ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
                         ->color(fn () => $tokenId ? 'success' : 'primary')
                         ->disabled(fn () => $tokenId ? true : false),
