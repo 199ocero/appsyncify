@@ -85,6 +85,7 @@ class SalesforceWizardStep implements HasWizardStep
                         ->color('primary')
                         ->requiresConfirmation()
                         ->modalHeading('Disconnect from ' . $app->name)
+                        ->modalDescription('AppSyncify will remove your ' . $app->name . ' access and refresh tokens for this integration, guaranteeing we have no further access to your account.')
                         ->modalSubmitActionLabel('Yes, disconnect')
                         ->modalIcon('heroicon-o-bolt-slash')
                         ->action(function () use ($integrationId, $type, $step, $tokenId) {
