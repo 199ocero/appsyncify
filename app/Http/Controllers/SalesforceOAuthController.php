@@ -41,7 +41,14 @@ class SalesforceOAuthController extends Controller
                     "{$updateDataKey}_token_id" => $token->id,
                     "{$updateDataKey}_settings" => SalesforceSettings::make()
                         ->domain($user->accessTokenResponseBody['instance_url'])
-                        ->apiVersion(SalesforceApi::make(domain: $user->accessTokenResponseBody['instance_url'], accessToken: $user->token, refreshToken: $user->refreshToken)->getApiVersion())
+                        ->apiVersion(
+                            SalesforceApi::make(
+                                domain: $user->accessTokenResponseBody['instance_url'],
+                                accessToken: $user->token,
+                                refreshToken: $user->refreshToken,
+                                isCrypt: false
+                            )->getApiVersion()
+                        )
                         ->getSettings(),
                 ]);
             }

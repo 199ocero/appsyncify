@@ -15,18 +15,20 @@ class SalesforceApi
     protected string $refreshToken;
     protected string $type;
     protected string $apiVersion;
+    protected string $rawRefreshToken;
 
-    public function __construct(string $domain, string $accessToken, string $refreshToken)
+    public function __construct(string $domain, string $accessToken, string $refreshToken, bool $isCrypt = true)
     {
         $this->client = new Client();
         $this->domain = $domain;
-        $this->accessToken = Crypt::decryptString($accessToken);
-        $this->refreshToken = Crypt::decryptString($refreshToken);
+        $this->accessToken = $isCrypt ? Crypt::encryptString($accessToken) : $accessToken;
+        $this->refreshToken = $isCrypt ? Crypt::decryptString($refreshToken) : $refreshToken;
+        $this->rawRefreshToken = $refreshToken;
     }
 
-    public static function make(string $domain, string $accessToken, string $refreshToken): self
+    public static function make(string $domain, string $accessToken, string $refreshToken, bool $isCrypt = true): self
     {
-        return new self($domain, $accessToken, $refreshToken);
+        return new self($domain, $accessToken, $refreshToken, $isCrypt);
     }
 
     public function apiVersion(string $apiVersion): self
@@ -70,7 +72,7 @@ class SalesforceApi
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             // Handle token expiration and refresh the token
             if ($e->getResponse()->getStatusCode() === 401) {
-                $this->refreshAccessToken($this->refreshToken);
+                $this->refreshAccessToken($this->rawRefreshToken);
                 // Retry the API call
                 return $this->getApiVersion();
             }
@@ -111,7 +113,7 @@ class SalesforceApi
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 // Handle token expiration and refresh the token
                 if ($e->getResponse()->getStatusCode() === 401) {
-                    $this->refreshAccessToken($this->refreshToken);
+                    $this->refreshAccessToken($this->rawRefreshToken);
                     // Retry the API call
                     return $this->getFields($integrationId);
                 }
@@ -120,13 +122,28 @@ class SalesforceApi
         });
     }
 
+    public function revokeSalesforceAccessToken(): bool
+    {
+        $response = $this->client->post($this->domain . '/services/oauth2/revoke', [
+            'form_params' => [
+                'token' => $this->refreshToken
+            ],
+        ]);
+
+        // Check the response status code to ensure the token was successfully revoked.
+        if ($response->getStatusCode() == 200) {
+            return true;
+        }
+
+        return false;
+    }
 
     private function refreshAccessToken(string $refreshToken): string
     {
         $response = $this->client->post($this->domain . '/services/oauth2/token', [
             'form_params' => [
                 'grant_type' => 'refresh_token',
-                'refresh_token' => $refreshToken,
+                'refresh_token' => Crypt::decryptString($refreshToken),
                 'client_id' => env('SALESFORCE_CLIENT_ID'),
                 'client_secret' => env('SALESFORCE_CLIENT_SECRET'),
             ],
@@ -135,16 +152,15 @@ class SalesforceApi
         $tokenData = json_decode($response->getBody(), true);
 
         if (isset($tokenData['access_token'])) {
-            // Retrieve the Token model from the database (assuming you have one)
+
             $tokenModel = Token::where('refresh_token', $refreshToken)->first();
 
             if ($tokenModel) {
-                // Update the access token
+
                 $tokenModel->update([
                     'token' => Crypt::encryptString($tokenData['access_token']),
                 ]);
 
-                // Update the class's access token property
                 $this->accessToken = $tokenData['access_token'];
 
                 return $this->accessToken;

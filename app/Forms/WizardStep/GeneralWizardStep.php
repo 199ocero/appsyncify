@@ -5,6 +5,7 @@ namespace App\Forms\WizardStep;
 use App\Models\Token;
 use App\Enums\Constant;
 use App\Models\Integration;
+use App\Services\SalesforceApi;
 
 class GeneralWizardStep
 {
@@ -28,7 +29,13 @@ class GeneralWizardStep
 
     public function disconnectApp(): void
     {
-        $integration = Integration::query()->find($this->integrationId);
+        $integration = Integration::query()->with(
+            'firstAppToken',
+            'secondAppToken',
+            'appCombination.firstApp',
+            'appCombination.secondApp',
+        )
+            ->find($this->integrationId);
 
         if ($this->type == Constant::FIRST_APP && $this->step >= 1) {
             $integration->update([
@@ -48,6 +55,14 @@ class GeneralWizardStep
             ]);
         }
 
+        $token = $this->type == Constant::FIRST_APP ? $integration->firstAppToken : $integration->secondAppToken;
+
+        $settings = $this->type == Constant::FIRST_APP ? json_decode($integration->first_app_settings, true) : json_decode($integration->second_app_settings, true);
+
+        $appName = $this->type == Constant::FIRST_APP ? $integration->appCombination->firstApp->name : $integration->appCombination->secondApp->name;
+
+        $this->revokeAccessToken($appName, $token, $settings);
+
         $updateDataKey = $this->type == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
         $integration->update([
@@ -55,5 +70,13 @@ class GeneralWizardStep
         ]);
 
         Token::query()->find($this->tokenId)->delete();
+    }
+
+    private function revokeAccessToken($appName, $token, $settings)
+    {
+        return match ($appName) {
+            Constant::SALESFORCE => SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)->revokeSalesforceAccessToken(),
+            default => null,
+        };
     }
 }
