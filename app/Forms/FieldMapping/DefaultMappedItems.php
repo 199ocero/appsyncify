@@ -2,15 +2,19 @@
 
 namespace App\Forms\FieldMapping;
 
+use App\Enums\Constant;
+
 class DefaultMappedItems
 {
     const salesforce_mailchimp = [
-        'FIRST_APP' => [
+        'FIRST_APP_NAME' => Constant::SALESFORCE,
+        'SECOND_APP_NAME' => Constant::MAILCHIMP,
+        'FIRST_APP_FIELDS' => [
             'Email' => 'Email',
             'FirstName' => 'First Name',
             'LastName' => 'Last Name'
         ],
-        'SECOND_APP' => [
+        'SECOND_APP_FIELDS' => [
             'email_address' => 'Email',
             'FNAME' => 'First Name',
             'LNAME' => 'Last Name'

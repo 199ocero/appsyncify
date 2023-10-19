@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Forms\FieldMapping\DefaultMappedItems;
 use App\Models\Token;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
@@ -81,9 +82,9 @@ class SalesforceApi
     }
 
 
-    public function getFields(int $integrationId): array
+    public function getFields(int $integrationId, string $mappedItems): array
     {
-        return Cache::remember($integrationId . '_salesforce_fields', now()->addHour(), function () use ($integrationId) {
+        return Cache::remember($integrationId . '_salesforce_fields', now()->addHour(), function () use ($integrationId, $mappedItems) {
             try {
                 $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
                     'headers' => [
@@ -98,9 +99,15 @@ class SalesforceApi
                     'Default Fields' => [],
                 ];
 
+                $mappedItems = DefaultMappedItems::$mappedItems[$mappedItems];
+
                 foreach ($fieldsMetadata->fields as $field) {
                     $fieldName = $field->name;
                     $fieldLabel = $field->label;
+
+                    if (in_array($fieldName, array_keys($mappedItems['FIRST_APP_FIELDS']))) {
+                        continue;
+                    }
 
                     if ($field->custom) {
                         $fields['Custom Fields'][$fieldName] = $fieldLabel;
@@ -115,7 +122,7 @@ class SalesforceApi
                 if ($e->getResponse()->getStatusCode() === 401) {
                     $this->refreshAccessToken($this->rawRefreshToken);
                     // Retry the API call
-                    return $this->getFields($integrationId);
+                    return $this->getFields($integrationId, $mappedItems);
                 }
                 throw $e;
             }

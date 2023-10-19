@@ -5,6 +5,7 @@ namespace App\Services;
 use MailchimpMarketing\ApiClient;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
+use App\Forms\FieldMapping\DefaultMappedItems;
 
 class MailchimpApi
 {
@@ -42,9 +43,9 @@ class MailchimpApi
         });
     }
 
-    public function getAudienceFields(string $audienceId): array
+    public function getAudienceFields(string $audienceId, string $mappedItems): array
     {
-        return Cache::remember($audienceId . '_mailchimp_audience_fields', now()->addHour(), function () use ($audienceId) {
+        return Cache::remember($audienceId . '_mailchimp_audience_fields', now()->addHour(), function () use ($audienceId, $mappedItems) {
             $this->mailchimpApiClient->setConfig([
                 'accessToken' => $this->accessToken,
                 'server' => $this->region,
@@ -54,7 +55,12 @@ class MailchimpApi
 
             $fields = [];
 
+            $mappedItems = DefaultMappedItems::$mappedItems[$mappedItems];
+
             foreach ($mergeFields->merge_fields as $field) {
+                if (in_array($field->tag, array_keys($mappedItems['SECOND_APP_FIELDS']))) {
+                    continue;
+                }
                 $fields[$field->tag] = $field->name;
             }
 

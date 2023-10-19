@@ -38,17 +38,18 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                 Forms\Components\Repeater::make('custom_field_mapping')
                     ->schema([
                         Forms\Components\Select::make('first_app_fields')
-                            ->label(function () use ($integration) {
+                            ->label(function () use ($integration, $mappedItems) {
                                 return $integration->appCombination->firstApp->name . ' Fields';
                             })
                             ->required()
-                            ->options(function () use ($integration) {
+                            ->options(function () use ($integration, $mappedItems) {
                                 if ($integration->firstAppToken) {
                                     $result = $this->getFieldMappingOptions(
                                         $integration->id,
                                         $integration->appCombination->firstApp->name,
                                         $integration->firstAppToken,
-                                        json_decode($integration->first_app_settings, true)
+                                        json_decode($integration->first_app_settings, true),
+                                        $mappedItems
                                     );
 
                                     return $result;
@@ -91,13 +92,14 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                 return $integration->appCombination->secondApp->name . ' Fields';
                             })
                             ->required()
-                            ->options(function () use ($integration) {
+                            ->options(function () use ($integration, $mappedItems) {
                                 if ($integration->secondAppToken) {
                                     $result = $this->getFieldMappingOptions(
                                         $integration->id,
                                         $integration->appCombination->secondApp->name,
                                         $integration->secondAppToken,
-                                        json_decode($integration->second_app_settings, true)
+                                        json_decode($integration->second_app_settings, true),
+                                        $mappedItems
                                     );
 
                                     return $result;
@@ -133,15 +135,15 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
             ]);
     }
 
-    private function getFieldMappingOptions($integrationId, $appName, $token, $settings)
+    private function getFieldMappingOptions($integrationId, $appName, $token, $settings, $mappedItems)
     {
         return match ($appName) {
             Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
-                ->getFields($integrationId),
+                ->getFields($integrationId, $mappedItems),
             Constant::MAILCHIMP => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
-                ->getAudienceFields($settings['audience_id']),
+                ->getAudienceFields($settings['audience_id'], $mappedItems),
             default => null,
         };
     }
