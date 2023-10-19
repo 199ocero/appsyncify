@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('second_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
             $table->json('first_app_settings')->nullable();
             $table->json('second_app_settings')->nullable();
+            $table->json('field_mapping')->nullable();
             $table->smallInteger('step')->default(1);
             $table->timestamps();
         });
