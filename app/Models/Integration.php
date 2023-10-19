@@ -18,12 +18,12 @@ class Integration extends Model
         'second_app_token_id',
         'first_app_settings',
         'second_app_settings',
-        'field_mapping',
+        'custom_field_mapping',
         'step'
     ];
 
     protected $casts = [
-        'field_mapping' => 'array',
+        'custom_field_mapping' => 'array',
     ];
 
     public function appCombination()

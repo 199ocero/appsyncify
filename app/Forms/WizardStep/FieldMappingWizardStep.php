@@ -5,11 +5,13 @@ namespace App\Forms\WizardStep;
 use Filament\Forms;
 use App\Enums\Constant;
 use Filament\Forms\Get;
+use App\Models\Integration;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use App\Forms\FieldMapping\DefaultMappedItems;
 use App\Forms\Contracts\HasFieldMappingWizardStep;
+use Filament\Forms\Set;
 
 class FieldMappingWizardStep implements HasFieldMappingWizardStep
 {
@@ -19,6 +21,28 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
     ): Component {
         return Forms\Components\Wizard\Step::make('field_mapping')
             ->label('Field Mapping')
+            ->afterValidation(function ($state, Set $set) use ($integration): void {
+
+                if ($integration->step == 3) {
+                    Integration::query()->find($integration->id)->update([
+                        'step' => (int)$integration->step + 1
+                    ]);
+                }
+
+                if ($state['field_mapping_enabled'] == true) {
+                    Integration::query()->find($integration->id)->update([
+                        'custom_field_mapping' => $state['custom_field_mapping']
+                    ]);
+                } else {
+                    if ($integration->custom_field_mapping) {
+                        Integration::query()->find($integration->id)->update([
+                            'custom_field_mapping' => null
+                        ]);
+
+                        $set('custom_field_mapping', []);
+                    }
+                }
+            })
             ->schema([
                 Forms\Components\Section::make('Pre-mapped Fields')
                     ->description('These are the pre-mapped fields that make sure data moves smoothly from one app to another, simplifying the transfer.')
@@ -34,6 +58,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                     ->collapsible(),
                 Forms\Components\Toggle::make('field_mapping_enabled')
                     ->label('Enable Field Mapping')
+                    ->default($integration->custom_field_mapping == null ? false : true)
                     ->live(),
                 Forms\Components\Repeater::make('custom_field_mapping')
                     ->schema([
@@ -129,6 +154,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                         }
                         return 'Select Field';
                     })
+                    ->default($integration->custom_field_mapping ?? [])
                     ->collapsible()
                     ->columns(3)
                     ->addActionLabel('Add Another Field'),
