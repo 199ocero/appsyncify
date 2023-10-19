@@ -22,6 +22,10 @@ class Integration extends Model
         'step'
     ];
 
+    protected $casts = [
+        'field_mapping' => 'array',
+    ];
+
     public function appCombination()
     {
         return $this->belongsTo(AppCombination::class);
