@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Forms\WizardStep;
+namespace App\Forms\WizardStep\Apps;
 
 use Filament\Forms;
 use App\Enums\Constant;

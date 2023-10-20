@@ -87,21 +87,30 @@ class SetupIntegration extends Page implements HasForms
     {
         return $form
             ->schema([
-                Forms\Components\Wizard::make([
-                    $this->firstAppWizardStep,
-                    $this->secondAppWizardStep,
-                    $this->fieldMappingWizardStep,
-                    Forms\Components\Wizard\Step::make('schedule')
-                        ->label('Schedule')
-                        ->schema([]),
-                ])
-                    ->nextAction(
-                        fn (Action $action) => $action->label('Next Step')->icon('heroicon-o-chevron-right'),
-                    )
-                    ->previousAction(
-                        fn (Action $action) => $action->label('Go Back')->icon('heroicon-o-chevron-left'),
-                    )
-                    ->startOnStep($this->integration->step)
+                Forms\Components\Tabs::make('My Tabs')
+                    ->tabs([
+                        Forms\Components\Tabs\Tab::make('Setup')
+                            ->schema([
+                                Forms\Components\Wizard::make([
+                                    $this->firstAppWizardStep,
+                                    $this->secondAppWizardStep,
+                                    $this->fieldMappingWizardStep,
+                                    Forms\Components\Wizard\Step::make('schedule')
+                                        ->label('Schedule')
+                                        ->schema([]),
+                                ])
+                                    ->nextAction(
+                                        fn (Action $action) => $action->label('Next Step')->icon('heroicon-o-chevron-right'),
+                                    )
+                                    ->previousAction(
+                                        fn (Action $action) => $action->label('Go Back')->icon('heroicon-o-chevron-left'),
+                                    )
+                                    ->startOnStep($this->integration->step)
+                            ]),
+                        Forms\Components\Tabs\Tab::make('Syncify Data')
+                            ->schema([])
+                            ->hidden()
+                    ]),
             ])
             ->statePath('data');
     }
@@ -115,8 +124,8 @@ class SetupIntegration extends Page implements HasForms
     private function getClassForApp($appName)
     {
         return match ($appName) {
-            Constant::SALESFORCE => \App\Forms\WizardStep\SalesforceWizardStep::class,
-            Constant::MAILCHIMP => \App\Forms\WizardStep\MailchimpWizardStep::class,
+            Constant::SALESFORCE => \App\Forms\WizardStep\Apps\SalesforceWizardStep::class,
+            Constant::MAILCHIMP => \App\Forms\WizardStep\Apps\MailchimpWizardStep::class,
                 // Add more cases as needed
             default => null,
         };
