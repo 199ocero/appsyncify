@@ -11,8 +11,9 @@ use App\Forms\Context\BaseWizardStep;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
-use App\Filament\Client\Resources\IntegrationResource;
 use App\Forms\WizardStep\FieldMappingWizardStep;
+use App\Forms\WizardStep\SyncScheduleWizardStep;
+use App\Filament\Client\Resources\IntegrationResource;
 
 class SetupIntegration extends Page implements HasForms
 {
@@ -89,15 +90,14 @@ class SetupIntegration extends Page implements HasForms
             ->schema([
                 Forms\Components\Tabs::make('My Tabs')
                     ->tabs([
-                        Forms\Components\Tabs\Tab::make('Setup')
+                        Forms\Components\Tabs\Tab::make('Syncify Setup')
+                            ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
                                 Forms\Components\Wizard::make([
                                     $this->firstAppWizardStep,
                                     $this->secondAppWizardStep,
                                     $this->fieldMappingWizardStep,
-                                    Forms\Components\Wizard\Step::make('schedule')
-                                        ->label('Schedule')
-                                        ->schema([]),
+                                    SyncScheduleWizardStep::make()->schedule(),
                                 ])
                                     ->nextAction(
                                         fn (Action $action) => $action->label('Next Step')->icon('heroicon-o-chevron-right'),
@@ -106,10 +106,12 @@ class SetupIntegration extends Page implements HasForms
                                         fn (Action $action) => $action->label('Go Back')->icon('heroicon-o-chevron-left'),
                                     )
                                     ->startOnStep($this->integration->step)
-                            ]),
-                        Forms\Components\Tabs\Tab::make('Syncify Data')
+                            ])
+                            ->live(),
+                        Forms\Components\Tabs\Tab::make('Syncify Run')
+                            ->icon('heroicon-o-rocket-launch')
                             ->schema([])
-                            ->hidden()
+                            ->hidden(fn () => $this->integration->step >= 4 ? false : true),
                     ]),
             ])
             ->statePath('data');

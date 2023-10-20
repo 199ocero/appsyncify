@@ -7,7 +7,7 @@ use App\Enums\Constant;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Integration;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
@@ -43,6 +43,8 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                         $set('custom_field_mapping', []);
                     }
                 }
+
+                $set('refresh_state', Str::random(20));
             })
             ->schema([
                 Forms\Components\Section::make('Pre-mapped Fields')
@@ -62,6 +64,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                         'md' => 2
                     ])
                     ->schema([
+                        Forms\Components\Hidden::make('refresh_state'),
                         Forms\Components\Toggle::make('field_mapping_enabled')
                             ->label('Enable Field Mapping')
                             ->default($integration->custom_field_mapping == null ? false : true)
