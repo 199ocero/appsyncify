@@ -20,6 +20,7 @@ class ManageIntegrations extends ManageRecords
                 ->modalDescription('Please fill out the form below.')
                 ->modalIcon('heroicon-o-arrow-path-rounded-square')
                 ->mutateFormDataUsing(function (array $data): array {
+                    $data['user_id'] = auth()->user()->id;
                     $data['step'] = 1;
                     return $data;
                 }),

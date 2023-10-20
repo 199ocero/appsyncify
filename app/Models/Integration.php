@@ -13,6 +13,7 @@ class Integration extends Model
         'name',
         'description',
         'is_active',
+        'user_id',
         'app_combination_id',
         'first_app_token_id',
         'second_app_token_id',
@@ -25,6 +26,11 @@ class Integration extends Model
     protected $casts = [
         'custom_field_mapping' => 'array',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function appCombination()
     {

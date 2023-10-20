@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->text('description');
             $table->boolean('is_active')->default(Constant::ACTIVE);
+            $table->foreignId('user_id')->nullable()->references('id')->on('users')->onDelete('set null');
             $table->foreignId('app_combination_id')->nullable()->references('id')->on('app_combination')->onDelete('set null');
             $table->foreignId('first_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
             $table->foreignId('second_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
