@@ -82,8 +82,12 @@ class SalesforceApi
     }
 
 
-    public function getFields(int $integrationId, string $mappedItems): array
+    public function getFields(int $integrationId, string $mappedItems, bool $isRefresh = false): array
     {
+        if ($isRefresh) {
+            Cache::forget($integrationId . '_salesforce_fields');
+        }
+
         return Cache::remember($integrationId . '_salesforce_fields', now()->addHour(), function () use ($integrationId, $mappedItems) {
             try {
                 $response = $this->client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [

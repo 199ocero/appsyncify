@@ -43,8 +43,12 @@ class MailchimpApi
         });
     }
 
-    public function getAudienceFields(string $audienceId, string $mappedItems): array
+    public function getAudienceFields(string $audienceId, string $mappedItems, bool $isRefresh = false): array
     {
+        if ($isRefresh) {
+            Cache::forget($audienceId . '_mailchimp_audience_fields');
+        }
+
         return Cache::remember($audienceId . '_mailchimp_audience_fields', now()->addHour(), function () use ($audienceId, $mappedItems) {
             $this->mailchimpApiClient->setConfig([
                 'accessToken' => $this->accessToken,
