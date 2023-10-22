@@ -20,11 +20,12 @@ class Integration extends Model
         'first_app_settings',
         'second_app_settings',
         'custom_field_mapping',
+        'schedule',
         'step'
     ];
 
     protected $casts = [
-        'custom_field_mapping' => 'array',
+        'custom_field_mapping' => 'array'
     ];
 
     public function user()

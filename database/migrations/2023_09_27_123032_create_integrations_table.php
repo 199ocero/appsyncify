@@ -24,6 +24,7 @@ return new class extends Migration
             $table->json('first_app_settings')->nullable();
             $table->json('second_app_settings')->nullable();
             $table->json('custom_field_mapping')->nullable();
+            $table->json('schedule')->nullable();
             $table->smallInteger('step')->default(1);
             $table->timestamps();
         });
