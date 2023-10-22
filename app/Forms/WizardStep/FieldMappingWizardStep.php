@@ -82,20 +82,22 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                 ->action(function (Set $set) use ($integration, $mappedItems) {
 
                                     if ($integration->firstAppToken && $integration->secondAppToken) {
-                                        $first = $this->refreshFields(
+                                        $first = $this->getFieldMappingOptions(
                                             $integration->id,
                                             $integration->appCombination->firstApp->name,
                                             $integration->firstAppToken,
                                             json_decode($integration->first_app_settings, true),
                                             $mappedItems,
+                                            true
                                         );
 
-                                        $second = $this->refreshFields(
+                                        $second = $this->getFieldMappingOptions(
                                             $integration->id,
                                             $integration->appCombination->secondApp->name,
                                             $integration->secondAppToken,
                                             json_decode($integration->second_app_settings, true),
-                                            $mappedItems
+                                            $mappedItems,
+                                            true
                                         );
 
                                         $set('first_app_fields', $first);
@@ -219,28 +221,15 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
             ]);
     }
 
-    private function getFieldMappingOptions($integrationId, $appName, $token, $settings, $mappedItems)
+    private function getFieldMappingOptions($integrationId, $appName, $token, $settings, $mappedItems, $forceRefresh = false)
     {
         return match ($appName) {
             Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
-                ->getFields($integrationId, $mappedItems),
+                ->getFields($integrationId, $mappedItems, $forceRefresh),
             Constant::MAILCHIMP => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
-                ->getAudienceFields($settings['audience_id'], $mappedItems),
-            default => null,
-        };
-    }
-
-    private function refreshFields($integrationId, $appName, $token, $settings, $mappedItems)
-    {
-        return match ($appName) {
-            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
-                ->apiVersion($settings['api_version'])
-                ->type(ucfirst($settings['sync_data_type']))
-                ->getFields($integrationId, $mappedItems, true),
-            Constant::MAILCHIMP => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
-                ->getAudienceFields($settings['audience_id'], $mappedItems, true),
+                ->getAudienceFields($settings['audience_id'], $mappedItems, $forceRefresh),
             default => null,
         };
     }
