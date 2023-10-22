@@ -7,7 +7,9 @@ use App\Enums\Constant;
 use Filament\Forms\Form;
 use App\Models\Integration;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\HtmlString;
 use App\Forms\Context\BaseWizardStep;
+use Illuminate\Support\Facades\Blade;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -106,6 +108,15 @@ class SetupIntegration extends Page implements HasForms
                                         fn (Action $action) => $action->label('Go Back')->icon('heroicon-o-chevron-left'),
                                     )
                                     ->startOnStep($this->integration->step)
+                                    ->submitAction(new HtmlString(Blade::render(<<<BLADE
+                                    <x-filament::button
+                                        type="submit"
+                                        size="lg"
+                                    >
+                                        Submit
+                                    </x-filament::button>
+                                BLADE)))
+
                             ])
                             ->live(),
                         Forms\Components\Tabs\Tab::make('Syncify Run')
@@ -115,6 +126,11 @@ class SetupIntegration extends Page implements HasForms
                     ]),
             ])
             ->statePath('data');
+    }
+
+    public function create(): void
+    {
+        dd($this->form->getState());
     }
 
     private function createWizardStep($app, $tokenId = null, $integrationId, $settings, $step, $type)
