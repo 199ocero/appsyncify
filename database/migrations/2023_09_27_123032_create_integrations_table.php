@@ -26,6 +26,7 @@ return new class extends Migration
             $table->json('custom_field_mapping')->nullable();
             $table->json('schedule')->nullable();
             $table->smallInteger('step')->default(1);
+            $table->smallInteger('tab_step')->default(1);
             $table->timestamps();
         });
     }

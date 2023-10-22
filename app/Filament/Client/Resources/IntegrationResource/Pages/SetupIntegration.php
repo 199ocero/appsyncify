@@ -38,6 +38,8 @@ class SetupIntegration extends Page implements HasForms
 
     public ?array $data = [];
 
+    protected $listeners = ['updateSetupTab' => '$refresh'];
+
     public function mount($integration)
     {
 
@@ -124,8 +126,9 @@ class SetupIntegration extends Page implements HasForms
                         Forms\Components\Tabs\Tab::make('Syncify Run')
                             ->icon('heroicon-o-rocket-launch')
                             ->schema([])
-                            ->hidden(fn () => $this->integration->step >= 4 ? false : true),
-                    ]),
+                            ->hidden(fn () => $this->integration->tab_step == 1 ? true : false),
+                    ])
+                    ->activeTab($this->integration->tab_step),
             ])
             ->statePath('data');
     }
@@ -146,12 +149,16 @@ class SetupIntegration extends Page implements HasForms
                     'is_fixed_time_value' => isset($state['is_fixed_time_value']) ? $state['is_fixed_time_value'] : null,
                     'day_value' => $state['day_value']
                 ]),
+                'tab_step' => 2
             ]);
         } else {
             Integration::query()->find($this->integration->id)->update([
-                'schedule' => null
+                'schedule' => null,
+                'tab_step' => 2
             ]);
         }
+
+        $this->dispatch('updateSetupTab');
 
         Notification::make()
             ->title('Syncify Setup')

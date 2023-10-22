@@ -21,7 +21,8 @@ class Integration extends Model
         'second_app_settings',
         'custom_field_mapping',
         'schedule',
-        'step'
+        'step',
+        'tab_step'
     ];
 
     protected $casts = [

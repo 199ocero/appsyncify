@@ -43,8 +43,6 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                         $set('custom_field_mapping', []);
                     }
                 }
-
-                $set('refresh_state', Str::random(20));
             })
             ->schema([
                 Forms\Components\Section::make('Pre-mapped Fields')
@@ -64,7 +62,6 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                         'md' => 2
                     ])
                     ->schema([
-                        Forms\Components\Hidden::make('refresh_state'),
                         Forms\Components\Toggle::make('field_mapping_enabled')
                             ->label('Enable Field Mapping')
                             ->default($integration->custom_field_mapping == null ? false : true)
