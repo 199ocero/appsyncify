@@ -16,6 +16,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use App\Forms\WizardStep\FieldMappingWizardStep;
 use App\Forms\WizardStep\SyncScheduleWizardStep;
 use App\Filament\Client\Resources\IntegrationResource;
+use Filament\Notifications\Notification;
 
 class SetupIntegration extends Page implements HasForms
 {
@@ -99,7 +100,7 @@ class SetupIntegration extends Page implements HasForms
                                     $this->firstAppWizardStep,
                                     $this->secondAppWizardStep,
                                     $this->fieldMappingWizardStep,
-                                    SyncScheduleWizardStep::make()->schedule(),
+                                    SyncScheduleWizardStep::make($this->integration)->schedule(),
                                 ])
                                     ->nextAction(
                                         fn (Action $action) => $action->label('Next Step')->icon('heroicon-o-chevron-right'),
@@ -129,9 +130,35 @@ class SetupIntegration extends Page implements HasForms
             ->statePath('data');
     }
 
+    /**
+     * To save the final step
+     * sync scheduling
+     */
     public function create(): void
     {
-        dd($this->form->getState());
+        $state = $this->form->getState();
+
+        if ($state['schedule_enabled']) {
+            Integration::query()->find($this->integration->id)->update([
+                'schedule' => json_encode([
+                    'schedule_enabled' => $state['schedule_enabled'],
+                    'is_fixed_time' => $state['is_fixed_time'],
+                    'is_fixed_time_value' => isset($state['is_fixed_time_value']) ? $state['is_fixed_time_value'] : null,
+                    'day_value' => $state['day_value']
+                ]),
+            ]);
+        } else {
+            Integration::query()->find($this->integration->id)->update([
+                'schedule' => null
+            ]);
+        }
+
+        Notification::make()
+            ->title('Syncify Setup')
+            ->body('Your syncify setup is complete.')
+            ->success()
+            ->color('success')
+            ->send();
     }
 
     private function createWizardStep($app, $tokenId = null, $integrationId, $settings, $step, $type)
