@@ -112,8 +112,9 @@ class SetupIntegration extends Page implements HasForms
                                     <x-filament::button
                                         type="submit"
                                         size="lg"
+                                        icon="heroicon-o-check"
                                     >
-                                        Submit
+                                        Finish Setup
                                     </x-filament::button>
                                 BLADE)))
 

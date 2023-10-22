@@ -27,23 +27,24 @@ class SyncScheduleWizardStep
                         Forms\Components\Radio::make('is_fixed_time')
                             ->label('Do you want to use a fixed time?')
                             ->helperText("If you select No, then it will sync data every 6 hours by default.")
+                            ->validationAttribute('fixed time')
                             ->boolean()
                             ->required()
                             ->inline(),
                         Forms\Components\Select::make('is_fixed_time_value')
-                            ->label('Select a Fixed Time Schedule')
+                            ->label('Select a Fixed Time')
                             ->options([
                                 1 => 'Every 1 Hour',
                                 2 => 'Every 2 Hours',
                                 3 => 'Every 3 Hours',
                                 4 => 'Every 4 Hours',
-                                5 => 'Every 5 Hours',
-                                6 => 'Every 6 Hours'
+                                5 => 'Every 5 Hours'
                             ])
                             ->required(fn (Get $get) => $get('is_fixed_time') == true ? true : false)
+                            ->validationAttribute('fixed time value')
                             ->hidden(fn (Get $get) => $get('is_fixed_time') == false ? true : false),
                         Forms\Components\CheckboxList::make('is_everyday_value')
-                            ->label('Select a Specific Day')
+                            ->label('Select a Day/s')
                             ->helperText('Select the days you want to sync data.')
                             ->options([
                                 'monday' => 'Monday',
@@ -55,6 +56,7 @@ class SyncScheduleWizardStep
                                 'sunday' => 'Sunday'
                             ])
                             ->required()
+                            ->validationAttribute('everyday value')
                     ])
                     ->hidden(fn (Get $get) => $get('schedule_enabled') == false ? true : false),
             ]);
