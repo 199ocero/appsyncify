@@ -28,6 +28,7 @@ class SyncScheduleWizardStep
             ->schema([
                 Forms\Components\Toggle::make('schedule_enabled')
                     ->label('Enable Data Syncing Schedule')
+                    ->helperText('If disabled, you need to manually sync your data in Syncify Run tab.')
                     ->default($this->schedule && $this->schedule['schedule_enabled'] ?? false)
                     ->live(),
                 Forms\Components\Section::make('Schedule')
@@ -37,7 +38,7 @@ class SyncScheduleWizardStep
                             ->label('Do you want to use a fixed time?')
                             ->helperText("If you select No, then it will sync data every 6 hours by default.")
                             ->validationAttribute('fixed time')
-                            ->default($this->schedule && $this->schedule['is_fixed_time'] ?? null)
+                            ->default($this->schedule && in_array($this->schedule['is_fixed_time'], [0, 1]) ? $this->schedule['is_fixed_time'] : null)
                             ->boolean()
                             ->required()
                             ->inline(),
