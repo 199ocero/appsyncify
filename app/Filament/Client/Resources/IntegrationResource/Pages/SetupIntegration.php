@@ -126,8 +126,10 @@ class SetupIntegration extends Page implements HasForms
                         Forms\Components\Tabs\Tab::make('Syncify Run')
                             ->icon('heroicon-o-rocket-launch')
                             ->schema([])
+                            ->badge('Available')
                             ->hidden(fn () => $this->integration->tab_step == 1 ? true : false),
                     ])
+                    ->persistTabInQueryString('syncify-tab')
                     ->activeTab($this->integration->tab_step),
             ])
             ->statePath('data');
@@ -162,7 +164,8 @@ class SetupIntegration extends Page implements HasForms
 
         Notification::make()
             ->title('Syncify Setup')
-            ->body('Your syncify setup is complete.')
+            ->body('Your syncify setup is complete. You can now sync your data.')
+            ->icon('heroicon-o-check-circle')
             ->success()
             ->color('success')
             ->send();
