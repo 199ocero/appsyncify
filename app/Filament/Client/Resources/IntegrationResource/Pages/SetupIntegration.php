@@ -36,6 +36,10 @@ class SetupIntegration extends Page implements HasForms
 
     protected $fieldMappingWizardStep;
 
+    protected $isFinished;
+
+    protected $isFinishedLabel;
+
     public ?array $data = [];
 
     protected $listeners = ['updateSetupTab' => '$refresh'];
@@ -70,6 +74,7 @@ class SetupIntegration extends Page implements HasForms
             $this->integration->id,
             json_decode($this->integration->first_app_settings, true),
             $this->integration->step,
+            (int)$this->integration->is_finished,
             Constant::FIRST_APP
         );
 
@@ -79,6 +84,7 @@ class SetupIntegration extends Page implements HasForms
             $this->integration->id,
             json_decode($this->integration->second_app_settings, true),
             $this->integration->step,
+            (int)$this->integration->is_finished,
             Constant::SECOND_APP
         );
 
@@ -87,6 +93,9 @@ class SetupIntegration extends Page implements HasForms
             $this->integration,
             $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code
         );
+
+        $this->isFinished = $this->integration->is_finished == 1 ? "wire:click='editSetup'" : "type='submit'";
+        $this->isFinishedLabel = $this->integration->is_finished == 1 ? 'Edit Setup' : 'Finish Setup';
     }
 
     public function form(Form $form): Form
@@ -113,11 +122,11 @@ class SetupIntegration extends Page implements HasForms
                                     ->startOnStep($this->integration->step)
                                     ->submitAction(new HtmlString(Blade::render(<<<BLADE
                                     <x-filament::button
-                                        type="submit"
                                         size="lg"
                                         icon="heroicon-o-check"
+                                        $this->isFinished
                                     >
-                                        Finish Setup
+                                       $this->isFinishedLabel
                                     </x-filament::button>
                                 BLADE)))
 
@@ -151,12 +160,14 @@ class SetupIntegration extends Page implements HasForms
                     'is_fixed_time_value' => isset($state['is_fixed_time_value']) ? $state['is_fixed_time_value'] : null,
                     'day_value' => $state['day_value']
                 ]),
-                'tab_step' => 2
+                'tab_step' => 2,
+                'is_finished' => 1
             ]);
         } else {
             Integration::query()->find($this->integration->id)->update([
                 'schedule' => null,
-                'tab_step' => 2
+                'tab_step' => 2,
+                'is_finished' => 1
             ]);
         }
 
@@ -171,10 +182,19 @@ class SetupIntegration extends Page implements HasForms
             ->send();
     }
 
-    private function createWizardStep($app, $tokenId = null, $integrationId, $settings, $step, $type)
+    public function editSetup(): void
+    {
+        Integration::query()->find($this->integration->id)->update([
+            'is_finished' => 0
+        ]);
+
+        $this->dispatch('updateSetupTab');
+    }
+
+    private function createWizardStep($app, $tokenId = null, $integrationId, $settings, $step, $type, $isFinished)
     {
         $class = $this->getClassForApp($app->name);
-        return $this->baseWizardStep->wizardStep(app($class), $app, $tokenId, $integrationId, $settings, $step, $type);
+        return $this->baseWizardStep->wizardStep(app($class), $app, $tokenId, $integrationId, $settings, $step, $type, $isFinished);
     }
 
     private function getClassForApp($appName)

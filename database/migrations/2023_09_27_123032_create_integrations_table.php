@@ -27,6 +27,7 @@ return new class extends Migration
             $table->json('schedule')->nullable();
             $table->smallInteger('step')->default(1);
             $table->smallInteger('tab_step')->default(1);
+            $table->boolean('is_finished')->default(false);
             $table->timestamps();
         });
     }
