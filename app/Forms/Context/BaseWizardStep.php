@@ -15,9 +15,10 @@ class BaseWizardStep
         int $integrationId,
         array | null $settings,
         int $step,
-        string $type
+        string $type,
+        bool $isFinished
     ) {
-        return $hasWizardStep->wizardStep($model, $tokenId, $integrationId, $settings, $step, $type);
+        return $hasWizardStep->wizardStep($model, $tokenId, $integrationId, $settings, $step, $type, $isFinished);
     }
 
     public function fieldMappingWizardStep(HasFieldMappingWizardStep $hasFieldMappingWizardStep, Model $integration, string $mappedItems)

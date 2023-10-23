@@ -13,6 +13,7 @@ interface HasWizardStep
         int $integrationId,
         array | null $settings,
         int $step,
-        string $type
+        string $type,
+        bool $isFinished
     ): Component;
 }
