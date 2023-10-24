@@ -67,6 +67,9 @@ class GeneralWizardStep
 
         $integration->update([
             "{$updateDataKey}_settings" => null,
+            'custom_field_mapping' => null,
+            'tab_step' => 1,
+            'is_finished' => 0
         ]);
 
         Token::query()->find($this->tokenId)->delete();
