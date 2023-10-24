@@ -84,7 +84,7 @@ class SalesforceWizardStep implements HasWizardStep
                         ->tooltip('Great! You can connect to ' . $app->name . ' now!')
                         ->icon(fn () => $tokenId ? 'heroicon-o-check-badge' : 'heroicon-o-bolt')
                         ->color(fn () => $tokenId ? 'success' : 'primary')
-                        ->disabled(fn () => $tokenId ? true : false),
+                        ->disabled(fn () => $tokenId ? true : false || $isFinished),
                     Forms\Components\Actions\Action::make('disconnect' . $app->app_code)
                         ->label('Disconnect')
                         ->icon('heroicon-o-bolt-slash')
@@ -100,6 +100,7 @@ class SalesforceWizardStep implements HasWizardStep
                         ->badge()
                         ->tooltip('You can disconnect from ' . $app->name . ' and start over!')
                         ->hidden($tokenId ? false : true)
+                        ->disabled($isFinished)
                 ]),
                 Forms\Components\Section::make('Salesforce Resource')
                     ->description(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.'))
@@ -157,6 +158,7 @@ class SalesforceWizardStep implements HasWizardStep
                                             }
                                         }
                                     })
+                                    ->disabled($isFinished)
                             )
                             ->disabled($settings && isset($settings['api_version']) ? true : false)
                             ->default($settings && isset($settings['api_version']) ? $settings['api_version'] : null)
@@ -165,6 +167,7 @@ class SalesforceWizardStep implements HasWizardStep
                     ->columns(2),
                 Forms\Components\Section::make('Sync Data')
                     ->description('Choose the type of data you want to sync.')
+                    ->disabled($isFinished)
                     ->schema([
                         Forms\Components\Radio::make('sync_data_type')
                             ->label('')

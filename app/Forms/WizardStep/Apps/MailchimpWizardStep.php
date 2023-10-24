@@ -27,6 +27,7 @@ class MailchimpWizardStep implements HasWizardStep
 
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
+            ->disabled($isFinished)
             ->beforeValidation(function () use ($app, $tokenId): void {
                 if (!$tokenId) {
                     Notification::make()
@@ -96,6 +97,7 @@ class MailchimpWizardStep implements HasWizardStep
                         ->badge()
                         ->tooltip('You can disconnect from ' . $app->name . ' and start over!')
                         ->hidden($tokenId ? false : true)
+                        ->disabled($isFinished)
                 ]),
                 Forms\Components\TextInput::make('region')
                     ->label('Region')
@@ -113,7 +115,8 @@ class MailchimpWizardStep implements HasWizardStep
                         }
                         return [];
                     })
-                    ->searchable()
+                    ->native($isFinished)
+                    ->searchable(!$isFinished)
                     ->default($settings && isset($settings['audience_id']) ? $settings['audience_id'] : null)
                     ->hidden($tokenId ? false : true),
             ]);
