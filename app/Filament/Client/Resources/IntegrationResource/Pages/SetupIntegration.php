@@ -128,7 +128,7 @@ class SetupIntegration extends Page implements HasForms
                                        $this->isFinishedLabel
                                     </x-filament::button>
                                 BLADE)))
-                                ->persistStepInQueryString('syncify-setup')
+                                ->persistStepInQueryString()
 
                             ])
                             ->live(),
@@ -138,7 +138,7 @@ class SetupIntegration extends Page implements HasForms
                             ->badge('Available')
                             ->hidden(fn () => $this->integration->tab_step == 1 ? true : false),
                     ])
-                    ->persistTabInQueryString('syncify-tab')
+                    ->persistTabInQueryString()
                     ->activeTab($this->integration->tab_step),
             ])
             ->statePath('data');
