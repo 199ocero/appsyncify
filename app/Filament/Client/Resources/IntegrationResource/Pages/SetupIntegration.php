@@ -16,6 +16,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use App\Forms\WizardStep\FieldMappingWizardStep;
 use App\Forms\WizardStep\SyncScheduleWizardStep;
 use App\Filament\Client\Resources\IntegrationResource;
+use App\Models\App;
 use Filament\Notifications\Notification;
 
 class SetupIntegration extends Page implements HasForms
@@ -70,22 +71,14 @@ class SetupIntegration extends Page implements HasForms
 
         $this->firstAppWizardStep = $this->createWizardStep(
             $this->integration->appCombination->firstApp,
-            $this->integration->first_app_token_id,
-            $this->integration->id,
-            json_decode($this->integration->first_app_settings, true),
-            $this->integration->step,
+            $this->integration,
             Constant::FIRST_APP,
-            (int)$this->integration->is_finished
         );
 
         $this->secondAppWizardStep = $this->createWizardStep(
             $this->integration->appCombination->secondApp,
-            $this->integration->second_app_token_id,
-            $this->integration->id,
-            json_decode($this->integration->second_app_settings, true),
-            $this->integration->step,
-            Constant::SECOND_APP,
-            (int)$this->integration->is_finished
+            $this->integration,
+            Constant::SECOND_APP
         );
 
         $this->fieldMappingWizardStep = $this->baseWizardStep->fieldMappingWizardStep(
@@ -93,7 +86,7 @@ class SetupIntegration extends Page implements HasForms
             $this->integration,
             $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code
         );
-        
+
         $this->isFinished = $this->integration->is_finished == 1 ? "wire:click='editSetup' icon='heroicon-o-pencil-square'" : "type='submit' icon='heroicon-o-check'";
         $this->isFinishedLabel = $this->integration->is_finished == 1 ? 'Edit Setup' : 'Finish Setup';
     }
@@ -128,7 +121,7 @@ class SetupIntegration extends Page implements HasForms
                                        $this->isFinishedLabel
                                     </x-filament::button>
                                 BLADE)))
-                                ->persistStepInQueryString()
+                                    ->persistStepInQueryString()
 
                             ])
                             ->live(),
@@ -191,10 +184,10 @@ class SetupIntegration extends Page implements HasForms
         $this->dispatch('updateSetupTab');
     }
 
-    private function createWizardStep($app, $tokenId = null, $integrationId, $settings, $step, $type, $isFinished)
+    private function createWizardStep(App $app, Integration $integration, string $type)
     {
         $class = $this->getClassForApp($app->name);
-        return $this->baseWizardStep->wizardStep(app($class), $app, $tokenId, $integrationId, $settings, $step, $type, $isFinished);
+        return $this->baseWizardStep->wizardStep(app($class), $app, $integration, $type);
     }
 
     private function getClassForApp($appName)

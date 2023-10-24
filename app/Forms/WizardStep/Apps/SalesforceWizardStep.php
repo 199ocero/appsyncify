@@ -2,24 +2,30 @@
 
 namespace App\Forms\WizardStep\Apps;
 
+use App\Models\App;
 use Filament\Forms;
 use App\Enums\Constant;
+use Filament\Forms\Set;
 use App\Models\Integration;
+use App\Services\SalesforceApi;
 use Illuminate\Support\HtmlString;
 use App\Settings\SalesforceSettings;
 use App\Forms\Contracts\HasWizardStep;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
 use App\Forms\WizardStep\GeneralWizardStep;
-use App\Services\SalesforceApi;
-use Filament\Forms\Set;
 use Illuminate\Validation\ValidationException;
 
 class SalesforceWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $tokenId, int $integrationId, array | null $settings, int $step, string $type, bool $isFinished): Component
+    public function wizardStep(App $app, Integration $integration, string $type): Component
     {
+        $integrationId = $integration->id;
+        $tokenId = getTokenId($type, $integration);
+        $settings = getSettings($type, $integration);
+        $step = (int)$integration->step;
+        $isFinished = $integration->is_finished;
+
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
             ->beforeValidation(function () use ($app, $tokenId): void {

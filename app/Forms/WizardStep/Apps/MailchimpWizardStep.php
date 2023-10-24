@@ -7,18 +7,24 @@ use App\Enums\Constant;
 use App\Models\Integration;
 use App\Settings\MailchimpSettings;
 use App\Forms\Contracts\HasWizardStep;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
 use App\Forms\WizardStep\GeneralWizardStep;
+use App\Models\App;
 use App\Models\Token;
 use App\Services\MailchimpApi;
 use Illuminate\Validation\ValidationException;
 
 class MailchimpWizardStep implements HasWizardStep
 {
-    public function wizardStep(Model $app, int | null $tokenId, int $integrationId, array | null $settings, int $step, string $type, bool $isFinished): Component
+    public function wizardStep(App $app, Integration $integration, string $type): Component
     {
+        $integrationId = $integration->id;
+        $tokenId = getTokenId($type, $integration);
+        $settings = getSettings($type, $integration);
+        $step = (int)$integration->step;
+        $isFinished = $integration->is_finished;
+
         return Forms\Components\Wizard\Step::make($app->app_code)
             ->label($app->name)
             ->beforeValidation(function () use ($app, $tokenId): void {
