@@ -25,7 +25,7 @@ class SyncScheduleWizardStep
     {
         return Forms\Components\Wizard\Step::make('schedule')
             ->label('Schedule')
-            ->disabled($this->integration->is_finished == 1 ? true : false)
+            ->disabled($this->integration->is_finished)
             ->schema([
                 Forms\Components\Toggle::make('schedule_enabled')
                     ->label('Enable Data Syncing Schedule')
@@ -53,10 +53,10 @@ class SyncScheduleWizardStep
                                 4 => 'Every 4 Hours',
                                 5 => 'Every 5 Hours'
                             ])
-                            ->required(fn (Get $get) => $get('is_fixed_time') == true ? true : false)
+                            ->required(fn (Get $get) => $get('is_fixed_time'))
                             ->validationAttribute('fixed time value')
-                            ->hidden(fn (Get $get) => $get('is_fixed_time') == false ? true : false)
-                            ->native($this->integration->is_finished == 1 ? true : false),
+                            ->hidden(fn (Get $get) => !$get('is_fixed_time'))
+                            ->native($this->integration->is_finished == 1),
                         Forms\Components\CheckboxList::make('day_value')
                             ->label('Select a Day/s')
                             ->helperText('Select the days you want to sync data.')
@@ -73,7 +73,7 @@ class SyncScheduleWizardStep
                             ->required()
                             ->validationAttribute('everyday value')
                     ])
-                    ->hidden(fn (Get $get) => $get('schedule_enabled') == false ? true : false),
+                    ->hidden(fn (Get $get) => !$get('schedule_enabled')),
             ]);
     }
 }

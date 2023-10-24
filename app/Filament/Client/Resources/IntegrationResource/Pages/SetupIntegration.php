@@ -93,7 +93,7 @@ class SetupIntegration extends Page implements HasForms
             $this->integration,
             $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code
         );
-
+        
         $this->isFinished = $this->integration->is_finished == 1 ? "wire:click='editSetup' icon='heroicon-o-pencil-square'" : "type='submit' icon='heroicon-o-check'";
         $this->isFinishedLabel = $this->integration->is_finished == 1 ? 'Edit Setup' : 'Finish Setup';
     }
@@ -128,6 +128,7 @@ class SetupIntegration extends Page implements HasForms
                                        $this->isFinishedLabel
                                     </x-filament::button>
                                 BLADE)))
+                                ->persistStepInQueryString('syncify-setup')
 
                             ])
                             ->live(),

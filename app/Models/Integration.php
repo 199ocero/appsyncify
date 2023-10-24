@@ -27,7 +27,8 @@ class Integration extends Model
     ];
 
     protected $casts = [
-        'custom_field_mapping' => 'array'
+        'custom_field_mapping' => 'array',
+        'is_finished' => 'boolean'
     ];
 
     public function user()

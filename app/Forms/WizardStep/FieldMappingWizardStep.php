@@ -22,6 +22,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
     ): Component {
         return Forms\Components\Wizard\Step::make('field_mapping')
             ->label('Field Mapping')
+            ->disabled($integration->is_finished)
             ->afterValidation(function ($state, Set $set) use ($integration): void {
 
                 if ($integration->step == 3) {
@@ -107,7 +108,9 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                             ->send();
                                     }
                                 })
+                                ->disabled($integration->is_finished)
                         ])
+                        
                             ->hidden(fn (Get $get) => $get('field_mapping_enabled') == true ? false : true)
                             ->alignEnd(),
                     ]),
@@ -143,7 +146,8 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                             ->filter()
                                             ->contains($value)
                                     )
-                                    ->searchable()
+                                    ->native($integration->is_finished)
+                                    ->searchable(!$integration->is_finished)
                                     ->live(),
                                 Forms\Components\Select::make('direction')
                                     ->label('Sync Direction')
@@ -163,7 +167,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                         </div>",
                                     ])
                                     ->allowHtml()
-
+                                    ->native($integration->is_finished)
                                     ->validationAttribute('sync direction')
                                     ->disableOptionWhen(fn (string $value): bool => $value === 'left' || $value === 'bidirectional')
                                     ->live(),
@@ -193,7 +197,8 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                             ->filter()
                                             ->contains($value)
                                     )
-                                    ->searchable()
+                                    ->native($integration->is_finished)
+                                    ->searchable(!$integration->is_finished)
                                     ->live(),
                             ])
                             ->validationAttribute('custom')
