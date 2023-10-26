@@ -24,3 +24,25 @@ if (!function_exists('getSettings')) {
         return json_decode($integration->second_app_settings, true);
     }
 }
+
+if (!function_exists('getDaysArrangement')) {
+    function getDaysArrangement(array $days): array
+    {
+        $dayToNumber = [
+            'monday' => 1,
+            'tuesday' => 2,
+            'wednesday' => 3,
+            'thursday' => 4,
+            'friday' => 5,
+            'saturday' => 6,
+            'sunday' => 7,
+        ];
+
+        // Sort the days based on their numeric values.
+        usort($days, function ($a, $b) use ($dayToNumber) {
+            return $dayToNumber[strtolower($a)] - $dayToNumber[strtolower($b)];
+        });
+
+        return $days;
+    }
+}
