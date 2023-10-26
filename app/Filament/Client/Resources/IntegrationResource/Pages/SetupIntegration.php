@@ -41,6 +41,8 @@ class SetupIntegration extends Page implements HasForms
 
     protected $isFinishedLabel;
 
+    protected $schedule;
+
     public ?array $data = [];
 
     protected $listeners = ['updateSetupTab' => '$refresh'];
@@ -89,6 +91,7 @@ class SetupIntegration extends Page implements HasForms
 
         $this->isFinished = $this->integration->is_finished == 1 ? "wire:click='editSetup' icon='heroicon-o-pencil-square'" : "type='submit' icon='heroicon-o-check'";
         $this->isFinishedLabel = $this->integration->is_finished == 1 ? 'Edit Setup' : 'Finish Setup';
+        $this->schedule = $this->integration->schedule ? json_decode($this->integration->schedule, true) : null;
     }
 
     public function form(Form $form): Form
@@ -127,7 +130,34 @@ class SetupIntegration extends Page implements HasForms
                             ->live(),
                         Forms\Components\Tabs\Tab::make('Syncify Run')
                             ->icon('heroicon-o-rocket-launch')
-                            ->schema([])
+                            ->schema([
+                                Forms\Components\Fieldset::make('Sync Details')
+                                    ->columns(3)
+                                    ->schema([
+                                        Forms\Components\Placeholder::make('sync_combination')
+                                            ->label('Sync Combination')
+                                            ->content($this->integration->appCombination->firstApp->name . ' - ' . $this->integration->appCombination->secondApp->name),
+                                        Forms\Components\Placeholder::make('sync_is_fixed_time_value')
+                                            ->label('Sync Fix Time')
+                                            ->content(
+                                                isset($this->schedule) && $this->schedule['is_fixed_time'] == 1
+                                                    ? "Every {$this->schedule['is_fixed_time_value']} Hour/s"
+                                                    : ($this->schedule === null ? 'Manual' : 'Every 6 Hours By Default')
+                                            ),
+
+                                        Forms\Components\Placeholder::make('sync_day_value')
+                                            ->label('Sync Day')
+                                            ->content(
+                                                isset($this->schedule) && isset($this->schedule['day_value'])
+                                                    ? (count($this->schedule['day_value']) == 7
+                                                        ? 'Sync Every Day'
+                                                        : implode(', ', array_map('ucwords', getDaysArrangement($this->schedule['day_value'])))
+                                                    )
+                                                    : 'Manual'
+                                            ),
+
+                                    ]),
+                            ])
                             ->badge('Available')
                             ->hidden(fn () => $this->integration->tab_step == 1 ? true : false),
                     ])
