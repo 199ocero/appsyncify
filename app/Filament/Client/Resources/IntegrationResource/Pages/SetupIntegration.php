@@ -136,26 +136,29 @@ class SetupIntegration extends Page implements HasForms
                                     ->schema([
                                         Forms\Components\Placeholder::make('sync_combination')
                                             ->label('Sync Combination')
-                                            ->content($this->integration->appCombination->firstApp->name . ' - ' . $this->integration->appCombination->secondApp->name),
+                                            ->content(new HtmlString("<span class='text-gray-500'>{$this->integration->appCombination->firstApp->name} - {$this->integration->appCombination->secondApp->name}</span>")),
                                         Forms\Components\Placeholder::make('sync_is_fixed_time_value')
                                             ->label('Sync Fix Time')
                                             ->content(
                                                 isset($this->schedule) && $this->schedule['is_fixed_time'] == 1
-                                                    ? "Every {$this->schedule['is_fixed_time_value']} Hour/s"
-                                                    : ($this->schedule === null ? 'Manual' : 'Every 6 Hours By Default')
+                                                    ? new HtmlString("<span class='text-gray-500'>Every {$this->schedule['is_fixed_time_value']} Hour/s</span>")
+                                                    : ($this->schedule === null
+                                                        ? new HtmlString("<span class='text-gray-500'>Manual</span>")
+                                                        : new HtmlString("<span class='text-gray-500'>Every 6 Hours By Default</span>")
+                                                    )
                                             ),
+
 
                                         Forms\Components\Placeholder::make('sync_day_value')
                                             ->label('Sync Day')
                                             ->content(
                                                 isset($this->schedule) && isset($this->schedule['day_value'])
                                                     ? (count($this->schedule['day_value']) == 7
-                                                        ? 'Sync Every Day'
-                                                        : implode(', ', array_map('ucwords', getDaysArrangement($this->schedule['day_value'])))
+                                                        ? new HtmlString("<span class='text-gray-500'>Sync Every Day</span>")
+                                                        : new HtmlString("<span class='text-gray-500'>" . implode(', ', array_map('ucwords', getDaysArrangement($this->schedule['day_value']))) . "</span>")
                                                     )
-                                                    : 'Manual'
+                                                    : new HtmlString("<span class='text-gray-500'>Manual</span>")
                                             ),
-
                                     ]),
                             ])
                             ->badge('Available')
