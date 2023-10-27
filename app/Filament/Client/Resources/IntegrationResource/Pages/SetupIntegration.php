@@ -131,8 +131,19 @@ class SetupIntegration extends Page implements HasForms
                         Forms\Components\Tabs\Tab::make('Syncify Run')
                             ->icon('heroicon-o-rocket-launch')
                             ->schema([
+                                Forms\Components\Actions::make([
+                                    Forms\Components\Actions\Action::make('syncify_run')
+                                        ->label('Run Sync')
+                                        ->icon('heroicon-o-play')
+                                        ->requiresConfirmation()
+                                        ->modalHeading('Sync Data')
+                                        ->modalDescription('Do you want to sync your data?')
+                                        ->modalSubmitActionLabel('Yes, sync it')
+                                        ->modalIcon('heroicon-o-play')
+                                ])
+                                    ->alignEnd(),
                                 Forms\Components\Fieldset::make('Sync Details')
-                                    ->columns(3)
+                                    ->columns(5)
                                     ->schema([
                                         Forms\Components\Placeholder::make('sync_combination')
                                             ->label('Sync Combination')
@@ -147,10 +158,23 @@ class SetupIntegration extends Page implements HasForms
                                                         : new HtmlString("<span class='text-gray-500'>Every 6 Hours By Default</span>")
                                                     )
                                             ),
-
-
                                         Forms\Components\Placeholder::make('sync_day_value')
                                             ->label('Sync Day')
+                                            ->content(
+                                                isset($this->schedule) && isset($this->schedule['day_value'])
+                                                    ? (count($this->schedule['day_value']) == 7
+                                                        ? new HtmlString("<span class='text-gray-500'>Sync Every Day</span>")
+                                                        : new HtmlString("<span class='text-gray-500'>" . implode(', ', array_map('ucwords', getDaysArrangement($this->schedule['day_value']))) . "</span>")
+                                                    )
+                                                    : new HtmlString("<span class='text-gray-500'>Manual</span>")
+                                            ),
+                                        Forms\Components\Placeholder::make('batch_id')
+                                            ->label('Batch Id')
+                                            ->content(
+                                                new HtmlString("<span class='text-gray-500'>No Batch Created</span>")
+                                            ),
+                                        Forms\Components\Placeholder::make('batch_status')
+                                            ->label('Batch Status')
                                             ->content(
                                                 isset($this->schedule) && isset($this->schedule['day_value'])
                                                     ? (count($this->schedule['day_value']) == 7
