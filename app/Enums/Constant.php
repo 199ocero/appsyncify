@@ -11,6 +11,52 @@ class Constant
     const INACTIVE = 0;
 
     /**
+     * Types of Logs
+     */
+    const INFO = 'info';
+    const WARNING = 'warning';
+    const ERROR = 'error';
+    const DEBUG = 'debug';
+    const AUDIT = 'audit';
+    const REQUEST = 'request';
+    const RESPONSE = 'response';
+    const SECURITY = 'security';
+    const PERFORMANCE = 'performance';
+    const CUSTOM = 'custom';
+
+    /**
+     * All Types of Logs
+     */
+    const ALL_LOG_TYPES = [
+        self::INFO,
+        self::WARNING,
+        self::ERROR,
+        self::DEBUG,
+        self::AUDIT,
+        self::REQUEST,
+        self::RESPONSE,
+        self::SECURITY,
+        self::PERFORMANCE,
+        self::CUSTOM
+    ];
+
+    /**
+     * Types of actor
+     */
+    const USER = 'user';
+    const ADMIN = 'admin';
+    const SYSTEM = 'system';
+
+    /**
+     * All Types of actor
+     */
+    const ALL_ACTOR_TYPES = [
+        self::USER,
+        self::ADMIN,
+        self::SYSTEM
+    ];
+
+    /**
      * Types of apps
      */
     const FIRST_APP = 'first';
