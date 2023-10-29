@@ -75,6 +75,9 @@ class IntegrationResource extends Resource
                     ->label('Second App')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\IconColumn::make('is_finished')
+                    ->label('Setup Finished')
+                    ->boolean(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active'),
             ])
