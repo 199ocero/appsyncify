@@ -71,4 +71,19 @@ class MailchimpApi
             return $fields;
         });
     }
+
+    public function syncData(string $audienceId)
+    {
+        $this->mailchimpApiClient->setConfig([
+            'accessToken' => $this->accessToken,
+            'server' => $this->region,
+        ]);
+
+        $response = $this->mailchimpApiClient->lists->addListMember("0e13aae7e7", [
+            "email_address" => "lila.White93@hotmail.com",
+            "status" => "subscribed",
+        ]);
+
+        return $response;
+    }
 }
