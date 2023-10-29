@@ -7,7 +7,6 @@ use Filament\Forms;
 use Filament\Tables;
 use App\Enums\Constant;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
 use App\Models\Integration;
 use App\Services\MailchimpApi;
 use Filament\Resources\Pages\Page;
@@ -15,19 +14,17 @@ use Illuminate\Support\HtmlString;
 use App\Forms\Context\BaseWizardStep;
 use Illuminate\Support\Facades\Blade;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Contracts\HasTable;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
 use App\Forms\WizardStep\FieldMappingWizardStep;
 use App\Forms\WizardStep\SyncScheduleWizardStep;
-use Filament\Tables\Concerns\InteractsWithTable;
 use App\Filament\Client\Resources\IntegrationResource;
 use App\Models\SyncLog;
 
-class SetupIntegration extends Page implements HasForms, HasTable
+class SetupIntegration extends Page implements HasForms
 {
-    use InteractsWithForms, InteractsWithTable;
+    use InteractsWithForms;
 
     protected static string $resource = IntegrationResource::class;
 
@@ -214,52 +211,6 @@ class SetupIntegration extends Page implements HasForms, HasTable
                     ->activeTab($this->integration->tab_step),
             ])
             ->statePath('data');
-    }
-
-    public function table(Table $table): Table
-    {
-        return $table
-            ->query(SyncLog::query())
-            ->columns([
-                Tables\Columns\TextColumn::make('operation_id')
-                    ->label('Operation ID')
-                    ->placeholder('No operation.')
-                    ->wrap(),
-                Tables\Columns\TextColumn::make('log_type')
-                    ->label('Type')
-                    ->placeholder('No log type.')
-                    ->wrap()
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        Constant::INFO => 'info',
-                        Constant::WARNING => 'warning',
-                        Constant::ERROR => 'danger',
-                    }),
-                Tables\Columns\TextColumn::make('message')
-                    ->placeholder('No message.')
-                    ->wrap(),
-                Tables\Columns\TextColumn::make('api_endpoint')
-                    ->label('Endpoint')
-                    ->placeholder('No endpoint.')
-                    ->wrap(),
-                Tables\Columns\TextColumn::make('request_data')
-                    ->label('Request')
-                    ->placeholder('No request.')
-                    ->wrap(),
-                Tables\Columns\TextColumn::make('response_data')
-                    ->label('Response')
-                    ->placeholder('No response.')
-                    ->wrap(),
-            ])
-            ->filters([
-                // ...
-            ])
-            ->actions([
-                // ...
-            ])
-            ->bulkActions([
-                // ...
-            ]);
     }
 
     /**
