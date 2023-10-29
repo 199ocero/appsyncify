@@ -121,6 +121,7 @@ class SetupIntegration extends Page implements HasForms
                     </x-filament::button>
                 BLADE)))
                     ->persistStepInQueryString()
+                    ->live()
             ])
             ->statePath('data');
     }
