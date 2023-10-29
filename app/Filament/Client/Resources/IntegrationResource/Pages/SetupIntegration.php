@@ -4,7 +4,6 @@ namespace App\Filament\Client\Resources\IntegrationResource\Pages;
 
 use App\Models\App;
 use Filament\Forms;
-use Filament\Tables;
 use App\Enums\Constant;
 use Filament\Forms\Form;
 use App\Models\Integration;
@@ -20,7 +19,6 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use App\Forms\WizardStep\FieldMappingWizardStep;
 use App\Forms\WizardStep\SyncScheduleWizardStep;
 use App\Filament\Client\Resources\IntegrationResource;
-use App\Models\SyncLog;
 
 class SetupIntegration extends Page implements HasForms
 {
@@ -195,13 +193,6 @@ class SetupIntegration extends Page implements HasForms
                                                     )
                                                     : new HtmlString("<span class='text-gray-500'>Manual</span>")
                                             ),
-                                    ]),
-                                Forms\Components\Section::make('Log Viewer')
-                                    ->description('You can see all the logs here per operation.')
-                                    ->schema([
-                                        Forms\Components\ViewField::make('log_viewer')
-                                            ->label('Logs')
-                                            ->view('tables.components.log-viewer'),
                                     ])
                             ])
                             ->badge('Available')
