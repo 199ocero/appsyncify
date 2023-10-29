@@ -99,107 +99,28 @@ class SetupIntegration extends Page implements HasForms
     {
         return $form
             ->schema([
-                Forms\Components\Tabs::make('My Tabs')
-                    ->tabs([
-                        Forms\Components\Tabs\Tab::make('Syncify Setup')
-                            ->icon('heroicon-o-cog-6-tooth')
-                            ->schema([
-                                Forms\Components\Wizard::make([
-                                    $this->firstAppWizardStep,
-                                    $this->secondAppWizardStep,
-                                    $this->fieldMappingWizardStep,
-                                    SyncScheduleWizardStep::make($this->integration)->schedule(),
-                                ])
-                                    ->nextAction(
-                                        fn (Action $action) => $action->label('Next Step')->icon('heroicon-o-chevron-right'),
-                                    )
-                                    ->previousAction(
-                                        fn (Action $action) => $action->label('Go Back')->icon('heroicon-o-chevron-left'),
-                                    )
-                                    ->startOnStep($this->integration->step)
-                                    ->submitAction(new HtmlString(Blade::render(<<<BLADE
-                                    <x-filament::button
-                                        size="lg"
-                                        $this->isFinished
-                                    >
-                                       $this->isFinishedLabel
-                                    </x-filament::button>
-                                BLADE)))
-                                    ->persistStepInQueryString()
-
-                            ])
-                            ->live(),
-                        Forms\Components\Tabs\Tab::make('Syncify Run')
-                            ->icon('heroicon-o-rocket-launch')
-                            ->schema([
-                                Forms\Components\Actions::make([
-                                    Forms\Components\Actions\Action::make('syncify_run')
-                                        ->label('Run Sync')
-                                        ->icon('heroicon-o-play')
-                                        ->requiresConfirmation()
-                                        ->modalHeading('Sync Data')
-                                        ->modalDescription('Do you want to sync your data?')
-                                        ->modalSubmitActionLabel('Yes, sync it')
-                                        ->modalIcon('heroicon-o-play')
-                                        ->action(function () {
-                                            $settings = json_decode($this->integration->second_app_settings, true);
-                                            $result = MailchimpApi::make(
-                                                accessToken: $this->integration->secondAppToken->token,
-                                                region: $settings['region']
-                                            )->syncData($settings['audience_id']);
-
-                                            dd($result);
-                                        })
-                                ])
-                                    ->alignEnd(),
-                                Forms\Components\Fieldset::make('Sync Details')
-                                    ->columns(5)
-                                    ->schema([
-                                        Forms\Components\Placeholder::make('sync_combination')
-                                            ->label('Sync Combination')
-                                            ->content(new HtmlString("<span class='text-gray-500'>{$this->integration->appCombination->firstApp->name} - {$this->integration->appCombination->secondApp->name}</span>")),
-                                        Forms\Components\Placeholder::make('sync_is_fixed_time_value')
-                                            ->label('Sync Fix Time')
-                                            ->content(
-                                                isset($this->schedule) && $this->schedule['is_fixed_time'] == 1
-                                                    ? new HtmlString("<span class='text-gray-500'>Every {$this->schedule['is_fixed_time_value']} Hour/s</span>")
-                                                    : ($this->schedule === null
-                                                        ? new HtmlString("<span class='text-gray-500'>Manual</span>")
-                                                        : new HtmlString("<span class='text-gray-500'>Every 6 Hours By Default</span>")
-                                                    )
-                                            ),
-                                        Forms\Components\Placeholder::make('sync_day_value')
-                                            ->label('Sync Day')
-                                            ->content(
-                                                isset($this->schedule) && isset($this->schedule['day_value'])
-                                                    ? (count($this->schedule['day_value']) == 7
-                                                        ? new HtmlString("<span class='text-gray-500'>Sync Every Day</span>")
-                                                        : new HtmlString("<span class='text-gray-500'>" . implode(', ', array_map('ucwords', getDaysArrangement($this->schedule['day_value']))) . "</span>")
-                                                    )
-                                                    : new HtmlString("<span class='text-gray-500'>Manual</span>")
-                                            ),
-                                        Forms\Components\Placeholder::make('batch_id')
-                                            ->label('Batch Id')
-                                            ->content(
-                                                new HtmlString("<span class='text-gray-500'>No Batch Created</span>")
-                                            ),
-                                        Forms\Components\Placeholder::make('batch_status')
-                                            ->label('Batch Status')
-                                            ->content(
-                                                isset($this->schedule) && isset($this->schedule['day_value'])
-                                                    ? (count($this->schedule['day_value']) == 7
-                                                        ? new HtmlString("<span class='text-gray-500'>Sync Every Day</span>")
-                                                        : new HtmlString("<span class='text-gray-500'>" . implode(', ', array_map('ucwords', getDaysArrangement($this->schedule['day_value']))) . "</span>")
-                                                    )
-                                                    : new HtmlString("<span class='text-gray-500'>Manual</span>")
-                                            ),
-                                    ])
-                            ])
-                            ->badge('Available')
-                            ->hidden(fn () => $this->integration->tab_step == 1 ? true : false),
-                    ])
-                    ->persistTabInQueryString()
-                    ->activeTab($this->integration->tab_step),
+                Forms\Components\Wizard::make([
+                    $this->firstAppWizardStep,
+                    $this->secondAppWizardStep,
+                    $this->fieldMappingWizardStep,
+                    SyncScheduleWizardStep::make($this->integration)->schedule(),
+                ])
+                    ->nextAction(
+                        fn (Action $action) => $action->label('Next Step')->icon('heroicon-o-chevron-right'),
+                    )
+                    ->previousAction(
+                        fn (Action $action) => $action->label('Go Back')->icon('heroicon-o-chevron-left'),
+                    )
+                    ->startOnStep($this->integration->step)
+                    ->submitAction(new HtmlString(Blade::render(<<<BLADE
+                    <x-filament::button
+                        size="lg"
+                        $this->isFinished
+                    >
+                       $this->isFinishedLabel
+                    </x-filament::button>
+                BLADE)))
+                    ->persistStepInQueryString()
             ])
             ->statePath('data');
     }
