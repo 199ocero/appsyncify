@@ -57,6 +57,24 @@ class Constant
     ];
 
     /**
+     * Types of operation
+     */
+    const STATUS_PENDING = 'pending';
+    const STATUS_RUNNING = 'running';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_FAILED = 'failed';
+
+    /**
+     * All Types of operation
+     */
+    const ALL_OPERATION_STATUS = [
+        self::STATUS_PENDING,
+        self::STATUS_RUNNING,
+        self::STATUS_COMPLETED,
+        self::STATUS_FAILED
+    ];
+
+    /**
      * Types of apps
      */
     const FIRST_APP = 'first';
