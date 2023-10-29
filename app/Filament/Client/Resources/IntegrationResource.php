@@ -87,6 +87,11 @@ class IntegrationResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('setup')
+                        ->label('Launch')
+                        ->url(fn (Model $record) => route('filament.client.resources.integrations.launch', $record->id))
+                        ->icon('heroicon-o-rocket-launch')
+                        ->disabled(fn (Model $record) => !$record->is_finished),
+                    Tables\Actions\Action::make('setup')
                         ->label('Setup')
                         ->url(fn (Model $record) => route('filament.client.resources.integrations.setup', $record->id))
                         ->icon('heroicon-o-arrow-path-rounded-square'),
@@ -110,6 +115,7 @@ class IntegrationResource extends Resource
         return [
             'index' => Pages\ManageIntegrations::route('/'),
             'setup' => Pages\SetupIntegration::route('/setup/{integration}'),
+            'launch' => Pages\LaunchIntegration::route('/launch/{integration}'),
         ];
     }
 }
