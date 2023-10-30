@@ -10,14 +10,20 @@ class Operation extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
+        'integration_id',
         'actor_id',
         'actor_type',
         'name',
-        'uuid',
+        'status',
         'started_at',
-        'ended_at',
-        'status'
+        'ended_at'
     ];
+
+    public function integration()
+    {
+        return $this->belongsTo(Integration::class);
+    }
 
     public function actor()
     {
