@@ -182,15 +182,15 @@ class SetupIntegration extends Page implements HasForms
 
     private function createWizardStep(App $app, Integration $integration, string $type)
     {
-        $class = $this->getClassForApp($app->name);
+        $class = $this->getClassForApp($app->app_code);
         return $this->baseWizardStep->wizardStep(app($class), $app, $integration, $type);
     }
 
-    private function getClassForApp($appName)
+    private function getClassForApp($appCode)
     {
-        return match ($appName) {
-            Constant::SALESFORCE => \App\Forms\WizardStep\Apps\SalesforceWizardStep::class,
-            Constant::MAILCHIMP => \App\Forms\WizardStep\Apps\MailchimpWizardStep::class,
+        return match ($appCode) {
+            Constant::APP_CODE[Constant::SALESFORCE] => \App\Forms\WizardStep\Apps\SalesforceWizardStep::class,
+            Constant::APP_CODE[Constant::MAILCHIMP] => \App\Forms\WizardStep\Apps\MailchimpWizardStep::class,
                 // Add more cases as needed
             default => null,
         };

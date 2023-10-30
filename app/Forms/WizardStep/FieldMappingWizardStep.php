@@ -82,7 +82,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                     if ($integration->firstAppToken && $integration->secondAppToken) {
                                         $first = $this->getFieldMappingOptions(
                                             $integration->id,
-                                            $integration->appCombination->firstApp->name,
+                                            $integration->appCombination->firstApp->app_code,
                                             $integration->firstAppToken,
                                             json_decode($integration->first_app_settings, true),
                                             $mappedItems,
@@ -91,7 +91,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
 
                                         $second = $this->getFieldMappingOptions(
                                             $integration->id,
-                                            $integration->appCombination->secondApp->name,
+                                            $integration->appCombination->secondApp->app_code,
                                             $integration->secondAppToken,
                                             json_decode($integration->second_app_settings, true),
                                             $mappedItems,
@@ -110,7 +110,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                 })
                                 ->disabled($integration->is_finished)
                         ])
-                        
+
                             ->hidden(fn (Get $get) => $get('field_mapping_enabled') == true ? false : true)
                             ->alignEnd(),
                     ]),
@@ -129,7 +129,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                         if ($integration->firstAppToken) {
                                             $result = $this->getFieldMappingOptions(
                                                 $integration->id,
-                                                $integration->appCombination->firstApp->name,
+                                                $integration->appCombination->firstApp->app_code,
                                                 $integration->firstAppToken,
                                                 json_decode($integration->first_app_settings, true),
                                                 $mappedItems
@@ -180,7 +180,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                                         if ($integration->secondAppToken) {
                                             $result = $this->getFieldMappingOptions(
                                                 $integration->id,
-                                                $integration->appCombination->secondApp->name,
+                                                $integration->appCombination->secondApp->app_code,
                                                 $integration->secondAppToken,
                                                 json_decode($integration->second_app_settings, true),
                                                 $mappedItems
@@ -223,14 +223,14 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
             ]);
     }
 
-    private function getFieldMappingOptions($integrationId, $appName, $token, $settings, $mappedItems, $forceRefresh = false)
+    private function getFieldMappingOptions($integrationId, $appCode, $token, $settings, $mappedItems, $forceRefresh = false)
     {
-        return match ($appName) {
-            Constant::SALESFORCE => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
+        return match ($appCode) {
+            Constant::APP_CODE[Constant::SALESFORCE] => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
                 ->getFields($integrationId, $mappedItems, $forceRefresh),
-            Constant::MAILCHIMP => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
+            Constant::APP_CODE[Constant::MAILCHIMP] => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
                 ->getAudienceFields($settings['audience_id'], $mappedItems, $forceRefresh),
             default => null,
         };

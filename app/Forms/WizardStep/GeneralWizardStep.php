@@ -59,9 +59,9 @@ class GeneralWizardStep
 
         $settings = $this->type == Constant::FIRST_APP ? json_decode($integration->first_app_settings, true) : json_decode($integration->second_app_settings, true);
 
-        $appName = $this->type == Constant::FIRST_APP ? $integration->appCombination->firstApp->name : $integration->appCombination->secondApp->name;
+        $appCode = $this->type == Constant::FIRST_APP ? $integration->appCombination->firstApp->app_code : $integration->appCombination->secondApp->app_code;
 
-        $this->revokeAccessToken($appName, $token, $settings);
+        $this->revokeAccessToken($appCode, $token, $settings);
 
         $updateDataKey = $this->type == Constant::FIRST_APP ? 'first_app' : 'second_app';
 
@@ -75,10 +75,10 @@ class GeneralWizardStep
         Token::query()->find($this->tokenId)->delete();
     }
 
-    private function revokeAccessToken($appName, $token, $settings)
+    private function revokeAccessToken($appCode, $token, $settings)
     {
-        return match ($appName) {
-            Constant::SALESFORCE => SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)->revokeSalesforceAccessToken(),
+        return match ($appCode) {
+            Constant::APP_CODE[Constant::SALESFORCE] => SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)->revokeSalesforceAccessToken(),
             default => null,
         };
     }
