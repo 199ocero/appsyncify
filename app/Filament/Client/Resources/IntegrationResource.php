@@ -20,9 +20,9 @@ class IntegrationResource extends Resource
 {
     protected static ?string $model = Integration::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-plus';
 
-    protected static ?string $activeNavigationIcon = 'heroicon-s-arrow-path-rounded-square';
+    protected static ?string $activeNavigationIcon = 'heroicon-s-squares-plus';
 
     public static function form(Form $form): Form
     {
@@ -97,7 +97,7 @@ class IntegrationResource extends Resource
                     Tables\Actions\Action::make('setup')
                         ->label('Setup')
                         ->url(fn (Model $record) => route('filament.client.resources.integrations.setup', $record->id))
-                        ->icon('heroicon-o-arrow-path-rounded-square'),
+                        ->icon('heroicon-o-square-3-stack-3d'),
                     Tables\Actions\EditAction::make()
                         ->modalHeading('Edit Integration')
                         ->modalDescription('Please edit the form below.')
