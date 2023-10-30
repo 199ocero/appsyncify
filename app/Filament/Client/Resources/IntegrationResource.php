@@ -78,6 +78,9 @@ class IntegrationResource extends Resource
                 Tables\Columns\IconColumn::make('is_finished')
                     ->label('Setup Finished')
                     ->boolean(),
+                Tables\Columns\IconColumn::make('isSchedule')
+                    ->label('Scheduled')
+                    ->boolean(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active'),
             ])
@@ -90,7 +93,7 @@ class IntegrationResource extends Resource
                         ->label('Launch')
                         ->url(fn (Model $record) => route('filament.client.resources.integrations.launch', $record->id))
                         ->icon('heroicon-o-rocket-launch')
-                        ->disabled(fn (Model $record) => !$record->is_finished),
+                        ->disabled(fn (Model $record) => !$record->is_finished && !$record->scheduled),
                     Tables\Actions\Action::make('setup')
                         ->label('Setup')
                         ->url(fn (Model $record) => route('filament.client.resources.integrations.setup', $record->id))
