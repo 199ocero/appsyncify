@@ -7,7 +7,7 @@ use Filament\Forms;
 use App\Enums\Constant;
 use Filament\Forms\Form;
 use App\Models\Integration;
-use App\Services\MailchimpApi;
+use Filament\Notifications;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\HtmlString;
 use App\Forms\Context\BaseWizardStep;
@@ -160,7 +160,14 @@ class SetupIntegration extends Page implements HasForms
             ->body('Your syncify setup is complete. You can now sync your data.')
             ->icon('heroicon-o-check-circle')
             ->success()
-            ->color('success')
+            ->persistent()
+            ->actions([
+                Notifications\Actions\Action::make('launch_sync')
+                    ->label('Launch Integration')
+                    ->icon('heroicon-o-rocket-launch')
+                    ->button()
+                    ->url(route('filament.client.resources.integrations.launch', $this->integration->id))
+            ])
             ->send();
     }
 
