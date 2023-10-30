@@ -120,7 +120,7 @@ class SetupIntegration extends Page implements HasForms
                        $this->isFinishedLabel
                     </x-filament::button>
                 BLADE)))
-                    ->persistStepInQueryString()
+                    ->startOnStep($this->integration->step)
                     ->live()
             ])
             ->statePath('data');
