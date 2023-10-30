@@ -31,6 +31,11 @@ class Integration extends Model
         'is_finished' => 'boolean'
     ];
 
+    public function getIsScheduleAttribute()
+    {
+        return !is_null($this->schedule);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
