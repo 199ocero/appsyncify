@@ -18,11 +18,17 @@ class OperationFactory extends Factory
      */
     public function definition(): array
     {
+        $uuid = Str::uuid();
+        $uuidParts = explode('-', $uuid);
+        $firstName = $uuidParts[0];
+
         return [
+            'uuid' => $uuid,
+            'integration_id' => 1,
             'actor_id' => 1,
             'actor_type' => Constant::USER,
-            'name' => Str::random(10),
-            'uuid' => $this->faker->uuid,
+            'name' => Str::upper($firstName),
+            'status' => Constant::STATUS_PENDING,
             'started_at' => now(),
             'ended_at' => now()->addMinutes(5),
         ];
