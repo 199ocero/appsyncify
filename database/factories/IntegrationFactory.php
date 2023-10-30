@@ -17,7 +17,14 @@ class IntegrationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->sentence(2),
+            'description' => $this->faker->sentence(),
+            'is_active' => true,
+            'user_id' => 1,
+            'app_combination_id' => 1,
+            'step' => 1,
+            'tab_step' => 1,
+            'is_finished' => false
         ];
     }
 }
