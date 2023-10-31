@@ -95,4 +95,12 @@ class Constant
         self::MAILCHIMP => 'mailchimp',
         // others apps code here...
     ];
+
+    /**
+     * App code synchronizer combination
+     */
+    const APP_CODE_SYNCHRONIZER = [
+        self::APP_CODE[self::SALESFORCE] . '_' . self::APP_CODE[self::MAILCHIMP]
+        // others apps code synchronizer combination here...
+    ];
 }
