@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76019784263c89123d94886f7b92d850",
+    "content-hash": "f5a2453817e05c35fb481bb51c021e13",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -315,61 +315,6 @@
                 }
             ],
             "time": "2023-10-27T15:01:19+00:00"
-        },
-        {
-            "name": "dasundev/filament-access-secret",
-            "version": "v2.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dasundev/filament-access-secret.git",
-                "reference": "9e52df0e97de9c8c17bdc3e7cc54c18198386a4e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dasundev/filament-access-secret/zipball/9e52df0e97de9c8c17bdc3e7cc54c18198386a4e",
-                "reference": "9e52df0e97de9c8c17bdc3e7cc54c18198386a4e",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^2.0|^3.0",
-                "php": "^8.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Dasundev\\FilamentAccessSecret\\FilamentAccessSecretServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Dasundev\\FilamentAccessSecret\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Dasun Tharanga",
-                    "email": "hello@dasun.dev"
-                }
-            ],
-            "description": "This package provides a middleware for securing access to Filament by requiring a secret key to be provided in the URL.",
-            "keywords": [
-                "dasundev",
-                "filament",
-                "laravel",
-                "login",
-                "secret"
-            ],
-            "support": {
-                "issues": "https://github.com/dasundev/filament-access-secret/issues",
-                "source": "https://github.com/dasundev/filament-access-secret/tree/v2.1.1"
-            },
-            "time": "2023-08-29T16:15:56+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -2054,16 +1999,16 @@
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
-            "version": "3.3.2",
+            "version": "3.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kirschbaum-development/eloquent-power-joins.git",
-                "reference": "260f8d24306ec1731bd270104f0bc3655c4dbd32"
+                "reference": "e55fa70dfa4a5e897443454825b9d4ce6081786a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kirschbaum-development/eloquent-power-joins/zipball/260f8d24306ec1731bd270104f0bc3655c4dbd32",
-                "reference": "260f8d24306ec1731bd270104f0bc3655c4dbd32",
+                "url": "https://api.github.com/repos/kirschbaum-development/eloquent-power-joins/zipball/e55fa70dfa4a5e897443454825b9d4ce6081786a",
+                "reference": "e55fa70dfa4a5e897443454825b9d4ce6081786a",
                 "shasum": ""
             },
             "require": {
@@ -2110,22 +2055,22 @@
             ],
             "support": {
                 "issues": "https://github.com/kirschbaum-development/eloquent-power-joins/issues",
-                "source": "https://github.com/kirschbaum-development/eloquent-power-joins/tree/3.3.2"
+                "source": "https://github.com/kirschbaum-development/eloquent-power-joins/tree/3.3.3"
             },
-            "time": "2023-10-29T00:53:00+00:00"
+            "time": "2023-10-31T18:01:18+00:00"
         },
         {
             "name": "laravel/framework",
-            "version": "v10.29.0",
+            "version": "v10.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "2d002849a16ad131110a50cbea4d64dbb78515a3"
+                "reference": "3dd85d9dbea82b937f8eaf344b50d613c5d1127a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/2d002849a16ad131110a50cbea4d64dbb78515a3",
-                "reference": "2d002849a16ad131110a50cbea4d64dbb78515a3",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/3dd85d9dbea82b937f8eaf344b50d613c5d1127a",
+                "reference": "3dd85d9dbea82b937f8eaf344b50d613c5d1127a",
                 "shasum": ""
             },
             "require": {
@@ -2314,20 +2259,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2023-10-24T13:48:53+00:00"
+            "time": "2023-10-31T13:19:45+00:00"
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.1.12",
+            "version": "v0.1.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "b35f249028c22016e45e48626e19e5d42fd827ff"
+                "reference": "e1379d8ead15edd6cc4369c22274345982edc95a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/b35f249028c22016e45e48626e19e5d42fd827ff",
-                "reference": "b35f249028c22016e45e48626e19e5d42fd827ff",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/e1379d8ead15edd6cc4369c22274345982edc95a",
+                "reference": "e1379d8ead15edd6cc4369c22274345982edc95a",
                 "shasum": ""
             },
             "require": {
@@ -2369,9 +2314,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.1.12"
+                "source": "https://github.com/laravel/prompts/tree/v0.1.13"
             },
-            "time": "2023-10-18T14:18:57+00:00"
+            "time": "2023-10-27T13:53:59+00:00"
         },
         {
             "name": "laravel/sanctum",
@@ -2501,16 +2446,16 @@
         },
         {
             "name": "laravel/socialite",
-            "version": "v5.9.1",
+            "version": "v5.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/socialite.git",
-                "reference": "49ecc4c907ed88c1254bae991c6b2948945645c2"
+                "reference": "f376b6eda9084899e37ac08bafd64a95edf9c6c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/socialite/zipball/49ecc4c907ed88c1254bae991c6b2948945645c2",
-                "reference": "49ecc4c907ed88c1254bae991c6b2948945645c2",
+                "url": "https://api.github.com/repos/laravel/socialite/zipball/f376b6eda9084899e37ac08bafd64a95edf9c6c0",
+                "reference": "f376b6eda9084899e37ac08bafd64a95edf9c6c0",
                 "shasum": ""
             },
             "require": {
@@ -2567,7 +2512,7 @@
                 "issues": "https://github.com/laravel/socialite/issues",
                 "source": "https://github.com/laravel/socialite"
             },
-            "time": "2023-09-07T16:13:53+00:00"
+            "time": "2023-10-30T22:09:58+00:00"
         },
         {
             "name": "laravel/tinker",
