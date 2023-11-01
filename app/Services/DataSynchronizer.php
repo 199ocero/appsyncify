@@ -36,14 +36,18 @@ class DataSynchronizer
         );
     }
 
-    public static function synchronizer(): void
+    public function synchronizer(): void
     {
+        $this->synchronizer->getFirstAppData($this->getSynchronizer(), $this->firstApp);
+        $this->synchronizer->getSecondAppData($this->getSynchronizer(), $this->secondApp);
+        $this->synchronizer->getFields($this->getSynchronizer(), $this->defaultFields, $this->customFields);
+        $this->synchronizer->syncData($this->getSynchronizer(),);
     }
 
     private function getSynchronizer()
     {
         return match ($this->firstAppCode . '_' . $this->secondAppCode) {
-            Constant::APP_CODE_SYNCHRONIZER[Constant::SALESFORCE . '_' . Constant::MAILCHIMP] => $this->synchronizer,
+            Constant::APP_CODE_SYNCHRONIZER[Constant::SALESFORCE . '_' . Constant::MAILCHIMP] => \App\Services\Combinations\SalesforceMailchimp::class,
             default => null
         };
     }

@@ -23,7 +23,7 @@ class BaseSynchronizer
         return $synchronizer->getFields($defaultFields, $customFields);
     }
 
-    public function syncData(HasSynchronizer $synchronizer): void
+    public function syncData(HasSynchronizer $synchronizer): array
     {
         $synchronizer->syncData();
     }
