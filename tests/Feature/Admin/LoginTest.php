@@ -3,9 +3,6 @@
 use App\Models\AdminUser;
 use function Pest\Livewire\livewire;
 use function Pest\Laravel\{actingAs, get, post};
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->adminUser = AdminUser::factory()->create();
