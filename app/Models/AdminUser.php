@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class AdminUser extends Authenticatable
+class AdminUser extends Authenticatable implements FilamentUser
 {
     use HasFactory;
 
@@ -40,4 +42,9 @@ class AdminUser extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
 }
