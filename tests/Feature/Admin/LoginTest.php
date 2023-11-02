@@ -2,7 +2,7 @@
 
 use App\Models\AdminUser;
 use function Pest\Livewire\livewire;
-use function Pest\Laravel\{actingAs, get, post};
+use function Pest\Laravel\{get};
 
 beforeEach(function () {
     $this->adminUser = AdminUser::factory()->create();
