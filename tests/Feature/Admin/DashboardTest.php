@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\AdminUser;
+use Filament\Pages\Dashboard;
+
 use function Pest\Laravel\{actingAs, get};
 
 beforeEach(function () {
@@ -8,8 +10,7 @@ beforeEach(function () {
 });
 
 it('can render the admin dashboard', function () {
-    $response = get(route('filament.admin.pages.dashboard'));
-    $response->assertStatus(302);
+    $response = get(Dashboard::getUrl(panel: 'admin'));
     $response = $this->followRedirects($response);
-    $response->assertStatus(200);
+    $response->assertOk()->assertSuccessful();
 });
