@@ -103,7 +103,7 @@ class SalesforceWizardStep implements HasWizardStep
                         ->disabled($isFinished)
                 ]),
                 Forms\Components\Section::make('Salesforce Resource')
-                    ->description(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold hover:underline" style="color: #FB7185;">here</span></a>.'))
+                    ->description(new HtmlString('This will be use to get different resources from your ' . $app->name . ' organization. See more information <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest_resources.htm" target="_blank"><span class="font-bold html-string-text-color hover:underline">here</span></a>.'))
                     ->schema([
                         Forms\Components\TextInput::make('domain')
                             ->label('Salesforce Organization Url')

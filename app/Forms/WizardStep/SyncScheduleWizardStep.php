@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Forms\Get;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
+use Illuminate\Support\HtmlString;
 
 class SyncScheduleWizardStep
 {
@@ -29,7 +30,7 @@ class SyncScheduleWizardStep
             ->schema([
                 Forms\Components\Toggle::make('schedule_enabled')
                     ->label('Enable Data Syncing Schedule')
-                    ->helperText('If disabled, you need to manually sync your data in Syncify Run tab.')
+                    ->helperText(new HtmlString("<span>If disabled, you need to manually sync your data by launching the <a  href='" . route('filament.client.resources.integrations.launch', $this->integration->id) . "' class='font-bold html-string-text-color hover:underline'>sync process</a>.</span>"))
                     ->default($this->schedule && $this->schedule['schedule_enabled'] ?? false)
                     ->live(),
                 Forms\Components\Section::make('Schedule')

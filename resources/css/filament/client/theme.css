@@ -13,3 +13,7 @@
 .field-mapping-app-logo{
     @apply w-10 h-10;
 }
+
+.html-string-text-color{
+    @apply text-rose-600 dark:text-rose-400;
+}
