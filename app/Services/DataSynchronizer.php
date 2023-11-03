@@ -48,7 +48,7 @@ class DataSynchronizer
     {
         return match ($this->firstAppCode . '_' . $this->secondAppCode) {
             Constant::APP_CODE_SYNCHRONIZER[Constant::SALESFORCE . '_' . Constant::MAILCHIMP] => \App\Services\Combinations\SalesforceMailchimp::class,
-            default => null
+            default => throw new \Exception('Invalid combination', 500),
         };
     }
 }
