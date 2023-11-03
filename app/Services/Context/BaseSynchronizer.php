@@ -8,23 +8,57 @@ use App\Services\Contracts\HasSynchronizer;
 
 class BaseSynchronizer
 {
-    public function getFirstAppData(HasSynchronizer $synchronizer, App $app): array
+    public static function make(): self
     {
-        return $synchronizer->getFirstAppData($app);
+        return new self();
+    }
+    public function usingSynchronizer(HasSynchronizer $synchronizer): self
+    {
+        $this->synchronizer = $synchronizer;
+        return $this;
     }
 
-    public function getSecondAppData(HasSynchronizer $synchronizer, App $app): array
+    public function withFirstApp(App $app): self
     {
-        return $synchronizer->getSecondAppData($app);
+        $this->firstApp = $app;
+        return $this;
     }
 
-    public function getFields(HasSynchronizer $synchronizer, array $defaultFields = [], array $customFields = []): array
+    public function withSecondApp(App $app): self
     {
-        return $synchronizer->getFields($defaultFields, $customFields);
+        $this->secondApp = $app;
+        return $this;
     }
 
-    public function syncData(HasSynchronizer $synchronizer): array
+    public function withDefaultFields(array $defaultFields): self
     {
-        return $synchronizer->syncData();
+        $this->defaultFields = $defaultFields;
+        return $this;
+    }
+
+    public function withCustomFields(array $customFields): self
+    {
+        $this->customFields = $customFields;
+        return $this;
+    }
+
+    public function getFirstAppData(): array
+    {
+        return $this->synchronizer->getFirstAppData($this->firstApp);
+    }
+
+    public function getSecondAppData(): array
+    {
+        return $this->synchronizer->getSecondAppData($this->secondApp);
+    }
+
+    public function getFields(): array
+    {
+        return $this->synchronizer->getFields($this->defaultFields, $this->customFields);
+    }
+
+    public function syncData(): array
+    {
+        return $this->synchronizer->syncData();
     }
 }

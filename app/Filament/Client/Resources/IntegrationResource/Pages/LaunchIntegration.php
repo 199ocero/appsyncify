@@ -12,9 +12,11 @@ use Filament\Resources\Pages\Page;
 use Filament\Support\Colors\Color;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Contracts\HasTable;
+use App\Services\Context\BaseSynchronizer;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Tables\Concerns\InteractsWithTable;
 use App\Filament\Client\Resources\IntegrationResource;
+use App\Forms\FieldMapping\DefaultMappedItems;
 
 class LaunchIntegration extends Page implements HasForms, HasTable
 {
@@ -27,6 +29,8 @@ class LaunchIntegration extends Page implements HasForms, HasTable
     public Integration $integration;
 
     protected $schedule;
+
+    protected $mappedItems;
 
     public function mount($integration)
     {
@@ -52,6 +56,7 @@ class LaunchIntegration extends Page implements HasForms, HasTable
         $this->heading = $this->integration->name;
         $this->subheading = $this->integration->description;
         $this->schedule = $this->integration->schedule ? json_decode($this->integration->schedule, true) : null;
+        $this->mappedItems = $this->integration->appCombination->firstApp->app_code . '_' . $this->integration->appCombination->secondApp->app_code;
     }
 
     public function table(Table $table): Table
@@ -69,7 +74,16 @@ class LaunchIntegration extends Page implements HasForms, HasTable
                     ->modalHeading('Sync Now')
                     ->modalDescription('This will create a new sync operation.')
                     ->modalSubmitActionLabel('Yes, sync now')
-                    ->modalIcon('heroicon-o-arrow-path'),
+                    ->modalIcon('heroicon-o-arrow-path')
+                    ->action(function () {
+                        BaseSynchronizer::make()
+                            ->usingSynchronizer(app($this->getSynchronizer()))
+                            ->withFirstApp($this->integration->appCombination->firstApp)
+                            ->withSecondApp($this->integration->appCombination->secondApp)
+                            ->withDefaultFields(DefaultMappedItems::$mappedItems[$this->mappedItems])
+                            ->withCustomFields($this->customFields)
+                            ->syncData();
+                    }),
             ];
         }
 
@@ -132,5 +146,13 @@ class LaunchIntegration extends Page implements HasForms, HasTable
                 return 'Your scheduled sync has not started yet.';
             })
             ->emptyStateActions($actions);
+    }
+
+    private function getSynchronizer()
+    {
+        return match ($this->mappedItems) {
+            Constant::APP_CODE_SYNCHRONIZER[Constant::APP_CODE[Constant::SALESFORCE] . '_' . Constant::APP_CODE[Constant::MAILCHIMP]] => \App\Services\Combinations\SalesforceMailchimp::class,
+            default => throw new \Exception('Invalid combination', 500),
+        };
     }
 }
