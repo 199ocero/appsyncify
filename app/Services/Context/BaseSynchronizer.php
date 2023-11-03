@@ -25,6 +25,6 @@ class BaseSynchronizer
 
     public function syncData(HasSynchronizer $synchronizer): array
     {
-        $synchronizer->syncData();
+        return $synchronizer->syncData();
     }
 }
