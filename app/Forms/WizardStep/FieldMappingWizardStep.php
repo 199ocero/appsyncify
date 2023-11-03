@@ -232,7 +232,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                 ->getFields($integrationId, $mappedItems, $forceRefresh),
             Constant::APP_CODE[Constant::MAILCHIMP] => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
                 ->getAudienceFields($settings['audience_id'], $mappedItems, $forceRefresh),
-            default => null,
+            default => throw new \Exception('App code not found.', 404),
         };
     }
 }

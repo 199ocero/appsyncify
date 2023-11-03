@@ -79,7 +79,7 @@ class GeneralWizardStep
     {
         return match ($appCode) {
             Constant::APP_CODE[Constant::SALESFORCE] => SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)->revokeSalesforceAccessToken(),
-            default => null,
+            default => throw new \Exception('App code not found.', 404),
         };
     }
 }
