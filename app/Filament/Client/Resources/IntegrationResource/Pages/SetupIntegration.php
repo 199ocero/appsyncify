@@ -192,7 +192,7 @@ class SetupIntegration extends Page implements HasForms
             Constant::APP_CODE[Constant::SALESFORCE] => \App\Forms\WizardStep\Apps\SalesforceWizardStep::class,
             Constant::APP_CODE[Constant::MAILCHIMP] => \App\Forms\WizardStep\Apps\MailchimpWizardStep::class,
                 // Add more cases as needed
-            default => null,
+            default => throw new \Exception('App code not found.', 404),
         };
     }
 }
