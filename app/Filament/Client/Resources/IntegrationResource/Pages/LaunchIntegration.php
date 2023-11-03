@@ -40,7 +40,7 @@ class LaunchIntegration extends Page implements HasForms, HasTable
                 ]);
                 $this->integration = $integration;
             } else {
-                abort(403);
+                abort(403, "Oops! You didn't finish the setup process.");
             }
         } else {
             abort(404);
