@@ -22,6 +22,12 @@ class IntegrationFactory extends Factory
             'is_active' => true,
             'user_id' => 1,
             'app_combination_id' => 1,
+            'first_app_token_id' => null,
+            'second_app_token_id' => null,
+            'first_app_settings' => null,
+            'second_app_settings' => null,
+            'custom_field_mapping' => null,
+            'schedule' => null,
             'step' => 1,
             'is_finished' => false
         ];
