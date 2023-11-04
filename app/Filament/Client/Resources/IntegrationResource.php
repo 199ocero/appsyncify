@@ -5,6 +5,7 @@ namespace App\Filament\Client\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Enums\Constant;
+use App\Enums\Status;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Integration;
@@ -54,7 +55,7 @@ class IntegrationResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                     ->label('Make this integration active?')
                     ->required()
-                    ->default(Constant::ACTIVE),
+                    ->default(Status::ACTIVE),
             ])
             ->columns('full');
     }
