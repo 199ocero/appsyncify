@@ -43,7 +43,7 @@ class IntegrationResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->firstApp->name} - {$record->secondApp->name}")
                     ->helperText(function (string $operation) {
                         if ($operation === 'edit') {
-                            return new HtmlString('<span class="font-bold" style="color: #FB7185;">Warning:</span> If you change the integration, all of your settings and data will be lost.');
+                            return new HtmlString('<span class="font-bold html-string-text-color">Warning:</span> If you change the integration, all of your settings and data will be lost.');
                         }
                         return null;
                     }),
