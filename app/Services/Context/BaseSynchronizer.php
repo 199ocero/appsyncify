@@ -42,23 +42,11 @@ class BaseSynchronizer
         return $this;
     }
 
-    public function getFirstAppData(): array
-    {
-        return $this->synchronizer->getFirstAppData($this->firstApp);
-    }
-
-    public function getSecondAppData(): array
-    {
-        return $this->synchronizer->getSecondAppData($this->secondApp);
-    }
-
-    public function getFields(): array
-    {
-        return $this->synchronizer->getFields($this->defaultFields, $this->customFields);
-    }
-
     public function syncData(): array
     {
+        $this->synchronizer->getFirstAppData($this->firstApp);
+        $this->synchronizer->getSecondAppData($this->secondApp);
+        $this->synchronizer->getFields($this->defaultFields, $this->customFields);
         return $this->synchronizer->syncData();
     }
 }
