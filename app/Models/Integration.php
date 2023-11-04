@@ -22,7 +22,6 @@ class Integration extends Model
         'custom_field_mapping',
         'schedule',
         'step',
-        'tab_step',
         'is_finished'
     ];
 

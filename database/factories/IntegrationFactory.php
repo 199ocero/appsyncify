@@ -23,7 +23,6 @@ class IntegrationFactory extends Factory
             'user_id' => 1,
             'app_combination_id' => 1,
             'step' => 1,
-            'tab_step' => 1,
             'is_finished' => false
         ];
     }
