@@ -3,11 +3,11 @@
 namespace App\Services\Contracts;
 
 use App\Models\App;
+use App\Models\Integration;
 
 interface HasSynchronizer
 {
-    public function getFirstAppData(App $app): array;
-    public function getSecondAppData(App $app): array;
-    public function getFields(array $defaultFields = [], array $customFields = []): array;
-    public function syncData(): array;
+    public function getIntegration(Integration $integration): Integration;
+    public function getFields(array $defaultFields = []): array;
+    public function syncData(): void;
 }
