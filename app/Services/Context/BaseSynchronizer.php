@@ -3,11 +3,19 @@
 namespace App\Services\Context;
 
 use App\Models\App;
+use App\Models\Integration;
 use Illuminate\Support\Collection;
 use App\Services\Contracts\HasSynchronizer;
 
 class BaseSynchronizer
 {
+    protected $synchronizer;
+    protected $integration;
+    protected $firstApp;
+    protected $secondApp;
+    protected $defaultFields;
+    protected $customFields;
+
     public static function make(): self
     {
         return new self();
@@ -18,15 +26,9 @@ class BaseSynchronizer
         return $this;
     }
 
-    public function withFirstApp(App $app): self
+    public function withIntegration(Integration $integration): self
     {
-        $this->firstApp = $app;
-        return $this;
-    }
-
-    public function withSecondApp(App $app): self
-    {
-        $this->secondApp = $app;
+        $this->integration = $integration;
         return $this;
     }
 
@@ -36,17 +38,10 @@ class BaseSynchronizer
         return $this;
     }
 
-    public function withCustomFields(array $customFields): self
+    public function syncData(): void
     {
-        $this->customFields = $customFields;
-        return $this;
-    }
-
-    public function syncData(): array
-    {
-        $this->synchronizer->getFirstAppData($this->firstApp);
-        $this->synchronizer->getSecondAppData($this->secondApp);
-        $this->synchronizer->getFields($this->defaultFields, $this->customFields);
-        return $this->synchronizer->syncData();
+        $this->synchronizer->getIntegration($this->integration);
+        $this->synchronizer->getFields($this->defaultFields);
+        $this->synchronizer->syncData();
     }
 }
