@@ -2,9 +2,10 @@
 
 namespace App\Filament\Client\Resources\IntegrationResource\Pages;
 
+use App\Enums\App as EnumsApp;
+use App\Enums\AppType;
 use App\Models\App;
 use Filament\Forms;
-use App\Enums\Constant;
 use Filament\Forms\Form;
 use App\Models\Integration;
 use Filament\Notifications;
@@ -75,13 +76,13 @@ class SetupIntegration extends Page implements HasForms
         $this->firstAppWizardStep = $this->createWizardStep(
             $this->integration->appCombination->firstApp,
             $this->integration,
-            Constant::FIRST_APP,
+            AppType::FIRST_APP->value,
         );
 
         $this->secondAppWizardStep = $this->createWizardStep(
             $this->integration->appCombination->secondApp,
             $this->integration,
-            Constant::SECOND_APP
+            AppType::SECOND_APP->value
         );
 
         $this->fieldMappingWizardStep = $this->baseWizardStep->fieldMappingWizardStep(
@@ -189,8 +190,8 @@ class SetupIntegration extends Page implements HasForms
     private function getClassForApp($appCode)
     {
         return match ($appCode) {
-            Constant::APP_CODE[Constant::SALESFORCE] => \App\Forms\WizardStep\Apps\SalesforceWizardStep::class,
-            Constant::APP_CODE[Constant::MAILCHIMP] => \App\Forms\WizardStep\Apps\MailchimpWizardStep::class,
+            getEnumValue(EnumsApp::SALESFORCE) => \App\Forms\WizardStep\Apps\SalesforceWizardStep::class,
+            getEnumValue(EnumsApp::MAILCHIMP) => \App\Forms\WizardStep\Apps\MailchimpWizardStep::class,
                 // Add more cases as needed
             default => throw new \Exception('App code not found.', 404),
         };

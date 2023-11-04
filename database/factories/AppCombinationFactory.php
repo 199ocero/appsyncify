@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Enums\Constant;
+use App\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -35,7 +35,7 @@ class AppCombinationFactory extends Factory
         return [
             'first_app_id' => 1,
             'second_app_id' => 2,
-            'is_active' => Constant::ACTIVE,
+            'is_active' => Status::ACTIVE,
             'features' => $features
         ];
     }

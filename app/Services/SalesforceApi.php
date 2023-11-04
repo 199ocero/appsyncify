@@ -103,13 +103,13 @@ class SalesforceApi
                     'Default Fields' => [],
                 ];
 
-                $mappedItems = DefaultMappedItems::$mappedItems[$mappedItems];
+                $defaultMappedItems = DefaultMappedItems::make($mappedItems);
 
                 foreach ($fieldsMetadata->fields as $field) {
                     $fieldName = $field->name;
                     $fieldLabel = $field->label;
 
-                    if (in_array($fieldName, array_keys($mappedItems['FIRST_APP_FIELDS']))) {
+                    if (in_array($fieldName, array_keys($defaultMappedItems['FIRST_APP_FIELDS']))) {
                         continue;
                     }
 

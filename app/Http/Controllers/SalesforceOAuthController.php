@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Token;
-use App\Enums\Constant;
+use App\Enums\AppType;
 use App\Models\Integration;
 use App\Services\SalesforceApi;
-use Illuminate\Http\Request;
 use App\Settings\SalesforceSettings;
 use Illuminate\Support\Facades\Crypt;
 use Laravel\Socialite\Facades\Socialite;
@@ -34,8 +33,8 @@ class SalesforceOAuthController extends Controller
                 'refresh_token' => Crypt::encryptString($user->refreshToken),
             ]);
 
-            if (session('salesforce_type') == Constant::FIRST_APP || session('salesforce_type') == Constant::SECOND_APP) {
-                $updateDataKey = session('salesforce_type') == Constant::FIRST_APP ? 'first_app' : 'second_app';
+            if (session('salesforce_type') == getEnumValue(AppType::FIRST_APP) || session('salesforce_type') == getEnumValue(AppType::SECOND_APP)) {
+                $updateDataKey = session('salesforce_type') == getEnumValue(AppType::FIRST_APP) ? 'first_app' : 'second_app';
 
                 Integration::query()->find(session('salesforce_integration_id'))->update([
                     "{$updateDataKey}_token_id" => $token->id,

@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Models\App;
 use Filament\Forms;
 use Filament\Tables;
-use App\Enums\Constant;
+use App\Enums\Status;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -49,7 +49,7 @@ class AppResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                     ->label('Make this app active?')
                     ->required()
-                    ->default(Constant::ACTIVE),
+                    ->default(Status::ACTIVE),
             ])
             ->columns('full');
     }

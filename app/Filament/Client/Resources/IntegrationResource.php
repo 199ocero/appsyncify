@@ -31,6 +31,7 @@ class IntegrationResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->placeholder('e.g My Integration')
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->string(),
                 Forms\Components\Select::make('app_combination_id')
                     ->label('Select Integration')

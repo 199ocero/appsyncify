@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Constant;
+use App\Enums\Status;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->text('description');
-            $table->boolean('is_active')->default(Constant::ACTIVE);
+            $table->boolean('is_active')->default(Status::ACTIVE);
             $table->foreignId('user_id')->nullable()->references('id')->on('users')->onDelete('set null');
             $table->foreignId('app_combination_id')->nullable()->references('id')->on('app_combination')->onDelete('set null');
             $table->foreignId('first_app_token_id')->nullable()->default(null)->references('id')->on('tokens')->onDelete('set null');
@@ -26,7 +26,6 @@ return new class extends Migration
             $table->json('custom_field_mapping')->nullable();
             $table->json('schedule')->nullable();
             $table->smallInteger('step')->default(1);
-            $table->smallInteger('tab_step')->default(1);
             $table->boolean('is_finished')->default(false);
             $table->timestamps();
         });

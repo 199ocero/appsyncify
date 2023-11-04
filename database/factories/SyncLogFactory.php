@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Enums\Constant;
+use App\Enums\Log;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +19,7 @@ class SyncLogFactory extends Factory
     {
         return [
             'operation_id' => 1,
-            'log_type' => Constant::INFO,
+            'log_type' => Log::INFO,
             'message' => 'Salesforce to Mailchimp Sync',
             'api_endpoint' => 'https://api.salesforce.com',
             'request_data' => json_encode([

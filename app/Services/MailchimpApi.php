@@ -59,7 +59,7 @@ class MailchimpApi
 
             $fields = [];
 
-            $mappedItems = DefaultMappedItems::$mappedItems[$mappedItems];
+            $mappedItems = DefaultMappedItems::make($mappedItems);
 
             foreach ($mergeFields->merge_fields as $field) {
                 if (in_array($field->tag, array_keys($mappedItems['SECOND_APP_FIELDS']))) {

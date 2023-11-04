@@ -2,8 +2,8 @@
 
 namespace App\Forms\WizardStep\Apps;
 
+use App\Enums\AppType;
 use Filament\Forms;
-use App\Enums\Constant;
 use App\Models\Integration;
 use App\Settings\MailchimpSettings;
 use App\Forms\Contracts\HasWizardStep;
@@ -43,7 +43,7 @@ class MailchimpWizardStep implements HasWizardStep
                 }
             })
             ->afterValidation(function ($state) use ($type, $step, $integrationId, $settings): void {
-                if ($type == Constant::FIRST_APP && $step == 1 || $type == Constant::SECOND_APP && $step == 2) {
+                if ($type == getEnumValue(AppType::FIRST_APP) && $step == 1 || $type == getEnumValue(AppType::SECOND_APP) && $step == 2) {
                     Integration::query()->find($integrationId)->update([
                         'step' => (int)$step + 1
                     ]);
@@ -55,7 +55,7 @@ class MailchimpWizardStep implements HasWizardStep
                 ];
 
                 if (count(array_diff_assoc($currentState, $settings)) > 0) {
-                    $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
+                    $updateDataKey = $type == getEnumValue(AppType::FIRST_APP) ? 'first_app' : 'second_app';
 
                     Integration::query()->find($integrationId)->update([
                         "{$updateDataKey}_settings" => MailchimpSettings::make()

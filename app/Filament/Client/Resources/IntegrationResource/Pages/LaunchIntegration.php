@@ -2,14 +2,14 @@
 
 namespace App\Filament\Client\Resources\IntegrationResource\Pages;
 
+use App\Enums\Combination;
 use Filament\Tables;
-use App\Enums\Constant;
+use App\Enums\Operation as EnumsOperation;
 use App\Models\SyncLog;
 use App\Models\Operation;
 use Filament\Tables\Table;
 use App\Models\Integration;
 use Filament\Resources\Pages\Page;
-use Filament\Support\Colors\Color;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Contracts\HasTable;
 use App\Services\Context\BaseSynchronizer;
@@ -61,7 +61,7 @@ class LaunchIntegration extends Page implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
-        $operation = Operation::query()->where('actor_id', auth()->user()->id)->where('status', Constant::STATUS_RUNNING)->first();
+        $operation = Operation::query()->where('actor_id', auth()->user()->id)->where('status', EnumsOperation::IN_PROGRESS)->first();
 
         $actions = [];
 
@@ -99,16 +99,16 @@ class LaunchIntegration extends Page implements HasForms, HasTable
                     ->placeholder('No Type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        Constant::INFO => 'info',
-                        Constant::WARNING => 'warning',
-                        Constant::ERROR => 'danger',
-                        Constant::DEBUG => 'gray',
-                        Constant::AUDIT => 'gray',
-                        Constant::REQUEST => 'gray',
-                        Constant::RESPONSE => 'gray',
-                        Constant::SECURITY => 'gray',
-                        Constant::PERFORMANCE => 'gray',
-                        Constant::CUSTOM => 'gray',
+                        EnumsOperation::INFO => 'info',
+                        EnumsOperation::WARNING => 'warning',
+                        EnumsOperation::ERROR => 'danger',
+                        EnumsOperation::DEBUG => 'gray',
+                        EnumsOperation::AUDIT => 'gray',
+                        EnumsOperation::REQUEST => 'gray',
+                        EnumsOperation::RESPONSE => 'gray',
+                        EnumsOperation::SECURITY => 'gray',
+                        EnumsOperation::PERFORMANCE => 'gray',
+                        EnumsOperation::CUSTOM => 'gray',
                     })
                     ->wrap(),
                 Tables\Columns\TextColumn::make('message')
@@ -151,7 +151,7 @@ class LaunchIntegration extends Page implements HasForms, HasTable
     private function getSynchronizer()
     {
         return match ($this->mappedItems) {
-            Constant::APP_CODE_SYNCHRONIZER[Constant::APP_CODE[Constant::SALESFORCE] . '_' . Constant::APP_CODE[Constant::MAILCHIMP]] => \App\Services\Combinations\SalesforceMailchimp::class,
+            getEnumValue(Combination::SALESFORCE_MAILCHIMP) => \App\Services\Combinations\SalesforceMailchimp::class,
             default => throw new \Exception('Invalid combination', 500),
         };
     }

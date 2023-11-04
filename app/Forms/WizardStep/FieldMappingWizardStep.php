@@ -2,12 +2,11 @@
 
 namespace App\Forms\WizardStep;
 
+use App\Enums\App;
 use Filament\Forms;
-use App\Enums\Constant;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Integration;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Component;
 use Filament\Notifications\Notification;
@@ -53,7 +52,7 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
                             ->label('')
                             ->view('forms.components.field-mapping')
                             ->viewData([
-                                'mappedItems' => DefaultMappedItems::$mappedItems[$mappedItems]
+                                'mappedItems' => DefaultMappedItems::make($mappedItems)
                             ])
                     ])
                     ->collapsed()
@@ -226,11 +225,11 @@ class FieldMappingWizardStep implements HasFieldMappingWizardStep
     private function getFieldMappingOptions($integrationId, $appCode, $token, $settings, $mappedItems, $forceRefresh = false)
     {
         return match ($appCode) {
-            Constant::APP_CODE[Constant::SALESFORCE] => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
+            getEnumValue(App::SALESFORCE) => \App\Services\SalesforceApi::make(domain: $settings['domain'], accessToken: $token->token, refreshToken: $token->refresh_token)
                 ->apiVersion($settings['api_version'])
                 ->type(ucfirst($settings['sync_data_type']))
                 ->getFields($integrationId, $mappedItems, $forceRefresh),
-            Constant::APP_CODE[Constant::MAILCHIMP] => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
+            getEnumValue(App::MAILCHIMP) => \App\Services\MailchimpApi::make(accessToken: $token->token, region: $settings['region'])
                 ->getAudienceFields($settings['audience_id'], $mappedItems, $forceRefresh),
             default => throw new \Exception('App code not found.', 404),
         };

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Constant;
+use App\Enums\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -15,7 +16,7 @@ return new class extends Migration
         Schema::create('sync_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('operation_id')->nullable()->references('id')->on('operations')->onDelete('cascade');
-            $table->enum('log_type', Constant::ALL_LOG_TYPES)->default('info');
+            $table->enum('log_type', Log::all())->default(Log::INFO);
             $table->string('message');
             $table->string('api_endpoint')->nullable();
             $table->json('request_data')->nullable();

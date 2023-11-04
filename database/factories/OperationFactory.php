@@ -2,7 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Enums\Constant;
+use App\Enums\Actor;
+use App\Enums\Operation;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,9 +27,9 @@ class OperationFactory extends Factory
             'uuid' => $uuid,
             'integration_id' => 1,
             'actor_id' => 1,
-            'actor_type' => Constant::USER,
+            'actor_type' => Actor::USER,
             'name' => Str::upper($firstName),
-            'status' => Constant::STATUS_PENDING,
+            'status' => Operation::PENDING,
             'started_at' => now(),
             'ended_at' => now()->addMinutes(5),
         ];

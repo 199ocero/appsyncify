@@ -4,7 +4,7 @@ namespace App\Forms\WizardStep\Apps;
 
 use App\Models\App;
 use Filament\Forms;
-use App\Enums\Constant;
+use App\Enums\AppType;
 use Filament\Forms\Set;
 use App\Models\Integration;
 use App\Services\SalesforceApi;
@@ -43,7 +43,7 @@ class SalesforceWizardStep implements HasWizardStep
                 }
             })
             ->afterValidation(function ($state) use ($type, $step, $integrationId, $settings): void {
-                if ($type == Constant::FIRST_APP && $step == 1 || $type == Constant::SECOND_APP && $step == 2) {
+                if ($type == getEnumValue(AppType::FIRST_APP) && $step == 1 || $type == getEnumValue(AppType::SECOND_APP) && $step == 2) {
                     Integration::query()->find($integrationId)->update([
                         'step' => (int)$step + 1
                     ]);
@@ -57,7 +57,7 @@ class SalesforceWizardStep implements HasWizardStep
 
                 if (count(array_diff_assoc($currentState, $settings)) > 0) {
 
-                    $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
+                    $updateDataKey = $type == getEnumValue(AppType::FIRST_APP) ? 'first_app' : 'second_app';
 
                     Integration::query()->find($integrationId)->update([
                         "{$updateDataKey}_settings" => SalesforceSettings::make()
@@ -123,12 +123,12 @@ class SalesforceWizardStep implements HasWizardStep
                                         if ($tokenId) {
                                             $integration = Integration::query()->with('firstAppToken', 'secondAppToken')->find($integrationId);
 
-                                            $updateDataKey = $type == Constant::FIRST_APP ? 'first_app' : 'second_app';
+                                            $updateDataKey = $type == getEnumValue(AppType::FIRST_APP) ? 'first_app' : 'second_app';
 
                                             $apiVersion = SalesforceApi::make(
                                                 domain: $settings['domain'],
-                                                accessToken: $type == Constant::FIRST_APP ? $integration->firstAppToken->token : $integration->secondAppToken->token,
-                                                refreshToken: $type == Constant::FIRST_APP ? $integration->firstAppToken->refresh_token : $integration->secondAppToken->refresh_token
+                                                accessToken: $type == getEnumValue(AppType::FIRST_APP) ? $integration->firstAppToken->token : $integration->secondAppToken->token,
+                                                refreshToken: $type == getEnumValue(AppType::FIRST_APP) ? $integration->firstAppToken->refresh_token : $integration->secondAppToken->refresh_token
                                             )
                                                 ->getApiVersion();
 

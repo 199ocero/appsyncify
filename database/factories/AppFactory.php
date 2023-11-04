@@ -2,7 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Enums\Constant;
+use App\Enums\App;
+use App\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,10 +19,10 @@ class AppFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => Constant::SALESFORCE,
+            'name' => App::SALESFORCE->label(),
             'description' => $this->faker->sentence(),
-            'app_code' => Constant::APP_CODE[Constant::SALESFORCE],
-            'is_active' => Constant::ACTIVE
+            'app_code' => App::SALESFORCE,
+            'is_active' => Status::ACTIVE
         ];
     }
 }
