@@ -22,6 +22,11 @@ class DefaultMappedItems
                 'FNAME' => 'First Name',
                 'LNAME' => 'Last Name'
             ],
+            'DIRECTION' => [
+                'right',
+                'right',
+                'right'
+            ],
             'FIRST_APP_LOGO' => 'images/logo/salesforce.svg',
             'SECOND_APP_LOGO' => 'images/logo/mailchimp.svg',
             'COUNT' => 3
