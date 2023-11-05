@@ -3,10 +3,12 @@
 namespace App\Services\Combinations;
 
 use App\Models\App;
+use App\Enums\AppType;
+use GuzzleHttp\Client;
 use App\Models\Integration;
+use App\Services\SalesforceApi;
 use MailchimpMarketing\ApiClient;
 use App\Services\Contracts\HasSynchronizer;
-use GuzzleHttp\Client;
 
 class SalesforceMailchimp implements HasSynchronizer
 {
@@ -34,6 +36,8 @@ class SalesforceMailchimp implements HasSynchronizer
     public function getFields(array $defaultFields = []): array
     {
         $mappedDefaultFields = [];
+        $salesforceFields = [];
+        $mailchimpFields = [];
 
         for ($i = 0; $i < $defaultFields['COUNT']; $i++) {
             $mappedDefaultFields[] = [
@@ -41,6 +45,7 @@ class SalesforceMailchimp implements HasSynchronizer
                 array_keys($defaultFields['FIRST_APP_FIELDS'])[$i],
                 array_keys($defaultFields['SECOND_APP_FIELDS'])[$i],
             ];
+            $salesforceFields[] = array_keys($defaultFields['FIRST_APP_FIELDS'])[$i];
         }
 
         $mappedCustomFields = [];
@@ -51,12 +56,17 @@ class SalesforceMailchimp implements HasSynchronizer
                 $field["first_app_fields"],
                 $field["second_app_fields"],
             ];
+            $mailchimpFields[] = $field["second_app_fields"];
         }
 
-        return $this->getFields = array_merge(
-            $mappedDefaultFields,
-            $mappedCustomFields
-        );
+        return $this->getFields = [
+            'all_fields' => array_merge(
+                $mappedDefaultFields,
+                $mappedCustomFields
+            ),
+            'salesforce_fields' => $salesforceFields,
+            'mailchimp_fields' => $mailchimpFields
+        ];
     }
 
     public function getFirstAppData(): array
@@ -71,5 +81,13 @@ class SalesforceMailchimp implements HasSynchronizer
 
     public function syncData(): void
     {
+        $settings = getSettings(type: getEnumValue(AppType::FIRST_APP), integration: $this->integration);
+
+        SalesforceApi::make(
+            domain: $settings['domain'],
+            accessToken: $this->integration->firstAppToken->token,
+            refreshToken: $this->integration->firstAppToken->refresh_token,
+        )
+            ->getAllData($this->getFields['salesforce_fields']);
     }
 }
