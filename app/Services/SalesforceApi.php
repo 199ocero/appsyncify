@@ -133,6 +133,51 @@ class SalesforceApi
         });
     }
 
+    public function getAllData(array $fields): array
+    {
+        $contacts = [];
+
+        try {
+
+            $this->checkOptedOutOfEmailVisibility();
+
+            $query = "SELECT Id, FirstName, LastName, Email, HasOptedOutOfEmail FROM {$this->type}";
+
+            $nextRecordsUrl = null;
+
+            do {
+
+                $requestQuery = [
+                    "q" => $query
+                ];
+
+                if ($nextRecordsUrl) {
+                    $requestQuery["nextRecordsUrl"] = $nextRecordsUrl;
+                }
+
+                $response = $client->get("{$this->domain}/services/data/v{$this->apiVersion}/query", [
+                    "headers" => [
+                        "Authorization" => "Bearer " . $this->accessToken
+                    ],
+                    "query" => $requestQuery
+                ]);
+
+                $responseJson = json_decode($response->getBody(), true);
+                $contacts = array_merge($contacts, $responseJson["records"]);
+
+                $nextRecordsUrl = $responseJson["nextRecordsUrl"] ?? null;
+            } while ($nextRecordsUrl);
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Handle token expiration and refresh the token
+            if ($e->getResponse()->getStatusCode() === 401) {
+                $this->refreshAccessToken($this->rawRefreshToken);
+                // Retry the API call
+                return $this->getAllDa();
+            }
+            throw $e;
+        }
+    }
+
     public function revokeSalesforceAccessToken(): bool
     {
         $response = $this->client->post($this->domain . '/services/oauth2/revoke', [
@@ -147,6 +192,31 @@ class SalesforceApi
         }
 
         return false;
+    }
+
+    private function checkOptedOutOfEmailVisibility(): bool
+    {
+        try {
+            $response = $client->get("{$this->domain}/services/data/v{$this->apiVersion}/sobjects/{$this->type}/describe", [
+                "headers" => [
+                    "Authorization" => "Bearer " . Crypt::decryptString($token)
+                ]
+            ]);
+
+            $describeData = json_decode($response->getBody(), true);
+
+            $found = array_search("HasOptedOutOfEmail", array_column($describeData["fields"], "name"));
+
+            return $found !== false;
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            // Handle token expiration and refresh the token
+            if ($e->getResponse()->getStatusCode() === 401) {
+                $this->refreshAccessToken($this->rawRefreshToken);
+                // Retry the API call
+                return $this->checkOptedOutOfEmailVisibility();
+            }
+            throw $e;
+        }
     }
 
     private function refreshAccessToken(string $refreshToken): string
