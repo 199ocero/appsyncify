@@ -10,7 +10,9 @@ use function Pest\Faker\fake;
 use App\Models\AppCombination;
 use App\Services\Context\BaseSynchronizer;
 use App\Forms\FieldMapping\DefaultMappedItems;
+use App\Models\Token;
 use App\Services\Combinations\SalesforceMailchimp;
+use Illuminate\Support\Facades\Crypt;
 
 it('can sync salesforce and mailchimp data', function () {
 
@@ -35,10 +37,23 @@ it('can sync salesforce and mailchimp data', function () {
         'second_app_id' => $mailchimp->id
     ]);
 
+    $salesforceToken = Token::factory()->create([
+        'app_id' => $salesforce->id,
+        'user_id' => $user->id,
+        'token' => Crypt::encryptString(Str::random(30)),
+        'refresh_token' => Crypt::encryptString(Str::random(30))
+    ]);
+
     $integration = Integration::factory()->create([
         'name' => 'My Integration',
         'user_id' => $user->id,
         'app_combination_id' => $appCombination->id,
+        'first_app_token_id' => $salesforceToken->id,
+        'first_app_settings' => json_encode([
+            'domain' => 'https://appsyncify-dev-ed.develop.my.salesforce.com',
+            'api_version' => '59.0',
+            'sync_data_type' => 'contact'
+        ]),
         'custom_field_mapping' => [
             'key_1' => [
                 "direction" =>  "right",
